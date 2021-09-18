@@ -1,7 +1,8 @@
 import datetime
 import time
 
-def hash(epochTime : int) -> int:
+
+def hash(epochTime: int) -> int:
     # Zeller’s Rule
     # f=k + [(13 * m-1)/5] + d + [d / 4] +[c / 4]-(2 * c)
     # where
@@ -9,20 +10,21 @@ def hash(epochTime : int) -> int:
     # m is the month number.
     # d is the last two digits of the year.
     # c is the first two digits of the year.
-    a = str(datetime.datetime.utcfromtimestamp(epochTime).replace(tzinfo=datetime.timezone.utc))
-    date = a.split() #split string with " "
-    time = date[1]      #get time
-    date = date[0]      #get date
-    date = date.split("-") #split date 22/04/2002 to '22','04','2002'
+    a = str(datetime.datetime.utcfromtimestamp(
+        epochTime).replace(tzinfo=datetime.timezone.utc))
+    date = a.split()  # split string with " "
+    time = date[1]  # get time
+    date = date[0]  # get date
+    date = date.split("-")  # split date 22/04/2002 to '22','04','2002'
 
     # Zeller's rule variable
-    k = int(date[2]) 
-    m = int(date[1]) 
-    m = m + 10 
+    k = int(date[2])
+    m = int(date[1])
+    m = m + 10
     if m > 12:
-        m = m % 12 
-    d = int(date[0][2:]) 
-    c = int(date[0][0:2]) 
+        m = m % 12
+    d = int(date[0][2:])
+    c = int(date[0][0:2])
 
     # convert hour to minute
     GMT = 7
@@ -31,7 +33,7 @@ def hash(epochTime : int) -> int:
     if hour > 24:
         hour = hour % 24
         k = k + 1
-    minute = int(time[3:5]) 
+    minute = int(time[3:5])
 
     # Find a day in week
     f = k + int((13*m-1)/5) + d + int(d / 4) + int(c / 4) - int(2 * c)
@@ -45,8 +47,10 @@ def hash(epochTime : int) -> int:
 
     return result
 
+
 def main():
     print(hash(407895000))
+
 
 if __name__ == "__main__":
     main()
