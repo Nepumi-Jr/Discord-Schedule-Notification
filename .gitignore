@@ -2,3 +2,7 @@
 *.pyc
 AdminPassword.pass
 AdminUsers.txt
+TOKEN
+CHANNEL_SECRET
+env/
+NGROK_TOKEN
