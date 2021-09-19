@@ -45,11 +45,11 @@ def hash(epochTime: int) -> int:
     # any number in every 5 minute in epoch time
     result = int(completelyMinute / 5)
 
-    return result
+    return result % 2016
 
 
 def main():
-    print(hash(407895000))
+    print(hash(1632026672))
 
 
 if __name__ == "__main__":

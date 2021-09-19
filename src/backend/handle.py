@@ -11,7 +11,6 @@ def insertOfUser(idUser, timeSet: int, subject: str, at: str):
     hashedTime = hash(timeSet)
     if idUser not in userData:
         userData[idUser] = {
-            "isAdmin": False,
             "timeOffset": 0,
             "lang": "TH",
             "timeData": {
@@ -45,7 +44,6 @@ def getStrUserSubject(idUser) -> str:
     global userData, timeTable
     result = f"{'='*15}User : {idUser} {'='*15}\n"
     if idUser in userData:
-        result += f" - IsAdmin : {userData[idUser]['isAdmin']}\n"
         result += f" - timeOff : {userData[idUser]['timeOffset']}\n"
         result += f" - langggg : {userData[idUser]['lang']}\n"
         result += f" - timeDat...\n"
