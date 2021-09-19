@@ -46,9 +46,11 @@ else:
         thisChanSecret = input("enter a CHANNEL_SECRET : ")
 
 
-print("NGROK_TOKEN", thisNgrokToken)
 print("TOKEN : ", thisToken)
 print("CHANNEL_SECRET : ", thisChanSecret)
+
+thisToken = thisToken.strip()
+thisChanSecret = thisChanSecret.strip()
 
 
 def ngrokLog(log):
