@@ -1,5 +1,4 @@
 from flask import Flask, request, abort
-from pyngrok import conf, ngrok
 import os
 import requests
 import json
@@ -21,18 +20,6 @@ app = Flask(__name__)
 thisToken = "???"
 thisChanSecret = "???"
 thisNgrokToken = ""
-
-if not os.path.exists("NGROK_TOKEN"):
-    printSuggest(
-        "ngrok auth token", "ngrok auth token not found...\nyou can save your own token by write it in file CHANNEL_SECRET")
-    thisNgrokToken = input("enter a NGROK_TOKEN : ")
-else:
-    try:
-        with open("NGROK_TOKEN", "r") as f:
-            thisNgrokToken = f.read()
-    except:
-        printWarning("ngrok auth token", "Can't read NGROK_TOKEN...")
-        thisNgrokToken = input("enter a NGROK_TOKEN : ")
 
 if not os.path.exists("TOKEN"):
     printSuggest(
@@ -68,31 +55,8 @@ def ngrokLog(log):
     printSuggest("ngrok", str(log))
 
 
-#! ngrok
-ngrok.set_auth_token(thisNgrokToken)
-conf.get_default().log_event_callback = ngrokLog
-conf.get_default().region = "jp"
-
-httpTurnel = ngrok.connect(5000)
-printSuggest("http", httpTurnel)
-
 line_bot_api = LineBotApi(thisToken)
 handler = WebhookHandler(thisChanSecret)
-
-
-def setWebhook(endpoint: str):
-    global thisToken
-    newWebhook = "https://" + endpoint.split("//")[-1] + "/callback"
-    url = "https://api.line.me/v2/bot/channel/webhook/endpoint"
-    header = {"Content-Type": "application/json",
-              "Authorization": "Bearer " + thisToken}
-    body = json.dumps({'endpoint': newWebhook})
-    respond = requests.put(url=url, data=body, headers=header)
-    #printSuggest("Webhook", str(respond))
-    printSuggest("Webhook", str(json.loads(respond.text)))
-
-
-setWebhook(httpTurnel.public_url)
 
 
 @app.route("/callback", methods=['POST'])
