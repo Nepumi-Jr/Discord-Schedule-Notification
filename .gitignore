@@ -1,5 +1,6 @@
-
 *.pyc
+
+BigConfig.ini
 AdminPassword.pass
 AdminUsers.txt
 TOKEN

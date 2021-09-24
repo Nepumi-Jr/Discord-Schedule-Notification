@@ -1,3 +1,3 @@
 from src import lineRunner
 
-lineRunner.app.run(debug=False)
+lineRunner.app.run()

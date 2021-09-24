@@ -1,8 +1,10 @@
 from flask import Flask, request, abort
+from pyngrok import conf, ngrok
 import os
 import requests
 import json
 import asyncio
+import configparser
 
 from src.printUtil import *
 
@@ -16,46 +18,58 @@ from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage,
 )
 
+
+def ngrokLog(log):
+    printSuggest("ngrok", str(log))
+
+
 app = Flask(__name__)
 thisToken = "???"
 thisChanSecret = "???"
 thisNgrokToken = ""
+thisWebhook = ""
 
-if not os.path.exists("TOKEN"):
-    printSuggest(
-        "Token", "TOKEN not found...\nyou can save your own token by write it in file TOKEN")
-    thisToken = input("enter a TOKEN : ")
-else:
-    try:
-        with open("TOKEN", "r") as f:
-            thisToken = f.read()
-    except:
-        printWarning("Token", "Can't read TOKEN...")
-        thisToken = input("enter a TOKEN : ")
 
-if not os.path.exists("CHANNEL_SECRET"):
-    printSuggest(
-        "Channel secret", "Channel secret not found...\nyou can save your own token by write it in file CHANNEL_SECRET")
-    thisChanSecret = input("enter a CHANNEL_SECRET : ")
-else:
-    try:
-        with open("CHANNEL_SECRET", "r") as f:
-            thisChanSecret = f.read()
-    except:
-        printWarning("Channel secret", "Can't read CHANNEL_SECRET...")
-        thisChanSecret = input("enter a CHANNEL_SECRET : ")
+# ? read Config
+if not os.path.exists("BigConfig.ini"):
+    printError("BigConfig", "BigConfig.ini not found :(")
+    exit(1)
+thisConfig = configparser.ConfigParser()
+thisConfig.read("BigConfig.ini")
+
+thisToken = thisConfig["KeyToken"]["botToken"].strip()
+thisChanSecret = thisConfig["KeyToken"]["channelSecret"].strip()
+thisWebhook = thisConfig["WebHookConfig"]["Webhook"].strip()
 
 
 print("TOKEN : ", thisToken)
 print("CHANNEL_SECRET : ", thisChanSecret)
 
-thisToken = thisToken.strip()
-thisChanSecret = thisChanSecret.strip()
+isNgrok = thisConfig["WebHookConfig"]["Ngrok"].strip().lower()
+if isNgrok != "false" and isNgrok != "0":
+    # ? ngrok stuff goes here
+    printSuggest("Ngrok", "is enabled...")
+    ngrok.set_auth_token(thisConfig["WebHookConfig"]["NgrokToken"].strip())
+    conf.get_default().log_event_callback = ngrokLog
+    conf.get_default().region = "jp"
+    httpTurnel = ngrok.connect(5000)
+    thisWebhook = httpTurnel.public_url
 
 
-def ngrokLog(log):
-    printSuggest("ngrok", str(log))
+def setWebhook(endpoint: str):
+    global thisToken
+    newWebhook = "https://" + endpoint.split("//")[-1] + "/callback"
+    url = "https://api.line.me/v2/bot/channel/webhook/endpoint"
+    header = {"Content-Type": "application/json",
+              "Authorization": "Bearer " + thisToken}
+    body = json.dumps({'endpoint': newWebhook})
+    respond = requests.put(url=url, data=body, headers=header)
+    #printSuggest("Webhook", str(respond))
+    printSuggest("Webhook", str(json.loads(respond.text)))
 
+
+print("Webhook : ", thisWebhook)
+setWebhook(thisWebhook)
 
 line_bot_api = LineBotApi(thisToken)
 handler = WebhookHandler(thisChanSecret)
