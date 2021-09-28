@@ -1,3 +1,3 @@
-from src import lineRunner
+from src import discordStuff
 
-lineRunner.app.run()
+discordStuff.runBot()

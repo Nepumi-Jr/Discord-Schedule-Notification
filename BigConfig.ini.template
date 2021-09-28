@@ -1,12 +1,6 @@
 [KeyToken]
 botToken = 
-channelSecret = 
 
-[WebHookConfig]
-Ngrok = 
-NgrokToken = 
-# use when ngrok is set to false
-Webhook = 
 
 [Config]
 defaultLang = 
