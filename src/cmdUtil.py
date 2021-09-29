@@ -89,7 +89,14 @@ def regisChannel(idChannel: int) -> int:
 
 
 def timeDetection(content: str) -> tuple:
-    content = content.replace(":"," ").replace("."," ")
+    newContent = ""
+    for i in content:
+        if i.isdigit():
+            newContent = newContent + i
+        else:
+             newContent = newContent + " "   
+    content = newContent
+    content = content.replace(":"," ").replace("."," ").replace(";"," ")
     word = content.split(" ")
     time = []
     for text in word:
@@ -102,19 +109,21 @@ def timeDetection(content: str) -> tuple:
     return ()
 
 def main():
-    print(isUseChannel(123))
-    print(regisChannel(123))
-    print(isUseChannel(123))
-    print(isUseChannel(456))
-    print(regisChannel(456))
-    print(regisChannel(456))
-    print(regisChannel(12))
-    print(regisChannel(1342))
-    print(isUseChannel(12))
-    print(isUseChannel(1342))
-    print(isUseChannel(23))
+    # print(isUseChannel(123))
+    # print(regisChannel(123))
+    # print(isUseChannel(123))
+    # print(isUseChannel(456))
+    # print(regisChannel(456))
+    # print(regisChannel(456))
+    # print(regisChannel(12))
+    # print(regisChannel(1342))
+    # print(isUseChannel(12))
+    # print(isUseChannel(1342))
+    # print(isUseChannel(23))
     print(timeDetection("0 61 นาที"))
     print(timeDetection("23:59 นาที"))
+    print(timeDetection("13 โมง 23 นาที"))
+    print(timeDetection("11ควยหี34"))
 
 if __name__ == "__main__":
     main()
