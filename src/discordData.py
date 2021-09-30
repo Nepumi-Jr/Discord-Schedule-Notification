@@ -4,7 +4,9 @@ from src import cmdUtil
 thisData = dict()
 DEFAULT_DATA = {
     "modeNofi": "Subject",
-    "CMDmessID": 69
+    "state": "idle",
+    "CMDmessID": 69,
+    "temp": [],
 }
 
 
@@ -44,7 +46,7 @@ def isExistID(thisId: int) -> bool:
         return False
 
 
-def changeMessID(thisId: int, messId: int):
+def setMessID(thisId: int, messId: int):
     if isExistID(thisId):
         thisData[thisId]["CMDmessID"] = messId
         saveData()
@@ -54,6 +56,30 @@ def getMessID(thisId: int):
     if isExistID(thisId):
         return thisData[thisId]["CMDmessID"]
     return 0
+
+
+def getState(thisId: int) -> str:
+    if isExistID(thisId):
+        return thisData[thisId]["state"]
+    return 0
+
+
+def setState(thisId: int, stat: str):
+    if isExistID(thisId):
+        thisData[thisId]["state"] = stat
+        saveData()
+
+
+def getTemp(thisId: int) -> str:
+    if isExistID(thisId):
+        return thisData[thisId]["temp"].copy()
+    return 0
+
+
+def setTemp(thisId: int, newTemp: list):
+    if isExistID(thisId):
+        thisData[thisId]["temp"] = newTemp.copy()
+        saveData()
 
 
 def createNewID(thisId: int, messId: int):

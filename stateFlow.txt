@@ -1,0 +1,50 @@
+Idle:
+    first state
+    - Add_SelSub
+
+Add_SelSub:
+    Select exist subject or Add new one
+    - Add_AllTime
+    - Add_Sub
+
+Add_Sub:
+    inserting Subject
+    - Add_Link
+
+Add_Sub2:
+    like sub1
+    - Add_SubCon
+
+Add_Link:
+    insert location or link
+    - Add_SubCon
+
+Add_SubCon:
+    confirming subject and link
+    - Add_Sub2
+    - Add_Link
+    - Add_AllTime
+
+Add_AllTime:
+    show all Time of current subject
+    - Add_NewDay
+    - Idle
+
+Add_NewDay:
+    select one day of week
+    - Add_NewTime
+
+Add_NewTime:
+    type time
+    - Add_NewTimeCon
+
+Add_NewTimeCon:
+    confirming day and time
+    - Add_NewDay
+    - Add_NewTime
+    - Add_AllTime
+
+
+
+
+

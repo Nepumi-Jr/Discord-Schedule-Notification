@@ -48,6 +48,15 @@ def hash(epochTime: int) -> int:
     return result % 2016
 
 
+def hashBack(timeHased: int) -> str:
+    # TODO : เหมือน Hash แต่รับข้อมูลเป็นเวลาที่ถูก hash
+    # TODO : ให้ส่งค่าออกมาเป็น string ภาษาไทยที่สวยงาม
+
+    # * ไม่มีตัวอย่างอ่ะ ขก. คิด
+    return "วันอาทิตย์ 12.00"
+    # ! เปลี่ยนรูปแบบได้ เอาที่คิดว่าสวยงาม
+
+
 def main():
     print(hash(1632026672))
 

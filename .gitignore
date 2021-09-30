@@ -9,3 +9,5 @@ env/
 NGROK_TOKEN
 useChannel.txt
 disData.yml
+sTimeTable.yml
+sUserData.yml

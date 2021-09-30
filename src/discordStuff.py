@@ -1,14 +1,17 @@
+from logging import disable
 import os
 import configparser
 from discord.ext import commands
 import discord
 from discord.activity import Activity, ActivityType
-from discord_components import Select, Button, DiscordComponents, interaction
+from discord_components import Select, Button, DiscordComponents, interaction, ActionRow
 from discord_components.component import ButtonStyle
+
 
 from src.printUtil import *
 from src import discordData as dData
 from src.cmdUtil import *
+from src.backend import handle as sData
 
 bot = commands.Bot(command_prefix="!")
 DiscordComponents(bot)
@@ -29,9 +32,12 @@ async def getMessage(chaID, messID):
 
 
 async def doDeleteLastCMDMessage(thisChannelID):
-    lastMessage = await getMessage(
-        thisChannelID, dData.getMessID(thisChannelID))
-    await lastMessage.delete()
+    try:
+        lastMessage = await getMessage(
+            thisChannelID, dData.getMessID(thisChannelID))
+        await lastMessage.delete()
+    except:
+        pass
 
 
 @bot.event
@@ -48,15 +54,70 @@ async def on_ready():
     # client.loop.create_task(cmd.botStatus(client))
 
 
+def getMenuComponents():
+    return [
+        ActionRow(
+            Button(
+                label="เพิ่มรายวิชา/เวลา",
+                custom_id="addButton",
+                style=ButtonStyle.green,
+                emoji="➕"),
+            Button(
+                label="แก้ไขรายวิชา/เวลา",
+                custom_id="editButton",
+                style=ButtonStyle.gray,
+                emoji="🔨",
+                disabled=True),
+            Button(
+                label="ลบรายวิชา/เวลา",
+                custom_id="delButton",
+                style=ButtonStyle.red,
+                emoji="❌",
+                disabled=True),
+        ),
+        ActionRow(
+            Button(
+                label="ตั้งค่าการใช้งาน",
+                custom_id="settingButton",
+                style=ButtonStyle.gray,
+                emoji="🔧",
+                disabled=True),
+            Button(
+                label="รีโหลด",
+                custom_id="reloadButton",
+                style=ButtonStyle.blue,
+                emoji="🔁"),
+            Button(
+                label="เริ่มต้นการทำงานใหม่",
+                custom_id="FreloadButton",
+                style=ButtonStyle.red,
+                emoji="⚠"),
+            Button(
+                label="ตรวจสอบเวอร์ชั่น",
+                custom_id="checkVersion",
+                style=ButtonStyle.gray,
+                emoji="⏫",
+                disabled=True),
+        ),
+        ActionRow(
+            Button(
+                label="ลบแชลเนลนี้(ข้อมูลจะหายทั้งหมด!!!)",
+                custom_id="deleteChanButton",
+                style=ButtonStyle.red,
+                emoji="💥"),
+            Button(
+                label="น่ า ส น ใ จ",
+                style=ButtonStyle.URL,
+                url="https://www.youtube.com/watch?v=iik25wqIuFo",
+                emoji="❔"),
+        )
+
+    ]
+
+
 async def menuCmdCommand(chan):
     return await chan.send(":clock1:**ยินดีต้อนรับสู่การใช้งาน บอทขอลิงก์(ห้อง)เรียน**:clock1:\n \\* สามารถใช้ปุ่มด้านล่างนี้ในการควบคุมต่าง ๆ\n*แนะนำ : ไม่ควรใช้ห้องแชทนี้ในการสนทนาปกติ*",
-                           components=[
-                               Button(
-                                   label="รีโหลด", custom_id="reloadButton", style=ButtonStyle.blue, emoji="🔁"),
-                               Button(
-                                   label="ลบแชลเนลนี้(ข้อมูลจะหายทั้งหมด!!!)", custom_id="deleteButton", style=ButtonStyle.red, emoji="💥"),
-                           ]
-                           )
+                           components=getMenuComponents())
 
 
 @bot.event
@@ -78,11 +139,8 @@ async def on_message(mes: discord.message.Message):
         thisMes = await menuCmdCommand(mes.channel)
 
         if dData.isExistID(thisChannelID):
-            try:
-                await doDeleteLastCMDMessage(thisChannelID)
-            except:
-                pass
-            dData.changeMessID(thisChannelID, thisMes.id)
+            await doDeleteLastCMDMessage(thisChannelID)
+            dData.setMessID(thisChannelID, thisMes.id)
         else:
             dData.createNewID(thisChannelID, thisMes.id)
 
@@ -105,18 +163,34 @@ async def on_message(mes: discord.message.Message):
 @bot.event
 async def on_button_click(inter: interaction.Interaction):
     thisChannelID = inter.channel_id
+    thisButtonId = inter.custom_id
     await inter.respond(type=6)
-    if inter.custom_id == "deleteButton":
+    if thisButtonId == "deleteChanButton":
         if dData.isExistID(thisChannelID):
             await doDeleteLastCMDMessage(thisChannelID)
             dData.removeID(thisChannelID)
             await bot.get_channel(thisChannelID).send(":boom:**ลบแชลเนลเรียบร้อย**:boom:\nหวังว่าจะได้ให้บริการอีกครั้ง *(ซึม...)*")
         else:
             await bot.get_channel(thisChannelID).send("เ ป็ น ไ ป ไ ม่ ไ ด้")
-    elif inter.custom_id == "reloadButton":
-        thisMes = await menuCmdCommand(inter.channel)
+
+    elif thisButtonId == "reloadButton":
         await doDeleteLastCMDMessage(thisChannelID)
-        dData.changeMessID(thisChannelID, thisMes.id)
+        thisMes = await menuCmdCommand(inter.channel)
+        dData.setMessID(thisChannelID, thisMes.id)
+
+    elif thisButtonId == "FreloadButton":
+        await bot.get_channel(thisChannelID).send("-"*20)
+        dData.setState(thisChannelID, "idle")
+        dData.setTemp(thisChannelID, [])
+        await bot.get_channel(thisChannelID).send("🔁เริ่มต้นระบบใหม่🔁")
+        await doDeleteLastCMDMessage(thisChannelID)
+        thisMes = await menuCmdCommand(inter.channel)
+        dData.setMessID(thisChannelID, thisMes.id)
+
+    elif thisButtonId == "addButton":
+        subjects = sData.getallSubjects(thisChannelID)
+        # Select exist subject or Add new one
+
 
 thisToken = "???"
 
@@ -134,6 +208,7 @@ def runBot():
     printSuggest("Discord", "Loading data...")
     try:
         dData.loadData()
+        sData.loadData()
     except Exception as e:
         printError("Discord", f"Fail to load data...")
         print(e)

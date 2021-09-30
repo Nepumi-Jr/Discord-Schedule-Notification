@@ -1,9 +1,37 @@
-# from src.backend.hashTime import *
-from hashTime import *
+from src.backend.hashTime import *
+# from hashTime import *
 import pprint
+import yaml
+from src import cmdUtil
 
-userData = {}
+userData = dict()
 timeTable = [dict() for i in range(2020)]
+
+
+def saveData():
+    global userData, timeTable
+    with open("sUserData.yml", "w") as f:
+        yaml.dump(userData, f)
+
+    with open("sTimeTable.yml", "w") as f:
+        yaml.dump(timeTable, f)
+
+
+def loadData():
+    global userData, timeTable
+    cmdUtil.fileExist("sUserData.yml")
+    cmdUtil.fileExist("sTimeTable.yml")
+    with open("sUserData.yml", "r") as f:
+        userData = yaml.load(f, Loader=yaml.FullLoader)
+
+    with open("sTimeTable.yml", "r") as f:
+        timeTable = yaml.load(f, Loader=yaml.FullLoader)
+
+    if userData == None:
+        userData = dict()
+
+    if timeTable == None:
+        timeTable = [dict() for i in range(2020)]
 
 
 def insertOfUser(idUser, timeSet: int, subject: str, at: str):
@@ -11,8 +39,6 @@ def insertOfUser(idUser, timeSet: int, subject: str, at: str):
     hashedTime = hash(timeSet)
     if idUser not in userData:
         userData[idUser] = {
-            "timeOffset": 0,
-            "lang": "TH",
             "timeData": {
                 hashedTime: (subject, at)
             }
@@ -86,12 +112,35 @@ def getTimeSubject(time: int):
     return result
 
 
-def getUserSubject(idUser):
+def getfullUserData(idUser):
     global userData, timeTable
     if idUser in userData:
         return userData[idUser]
     else:
         return None
+
+
+def getallSubjects(idUser):
+    global userData
+    if idUser in userData:
+        tempp = set()
+        for tim in userData[idUser]["timeData"]:
+            tempp.add(userData[idUser]["timeData"][tim][0])
+        return list(tempp)
+    else:
+        return []
+
+
+def getTimesfromSubject(idUser, subject: str):
+    global userData
+    if idUser in userData:
+        res = []
+        for tim in userData[idUser]["timeData"]:
+            if userData[idUser]["timeData"][tim][0] == subject:
+                res.append(hashBack(tim))
+        return res
+    else:
+        return []
 
 
 if __name__ == "__main__":
