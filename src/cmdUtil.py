@@ -1,4 +1,5 @@
 from os import path
+import random
 
 srcPath = ""
 
@@ -93,9 +94,9 @@ def timeDetection(content: str) -> tuple:
         if i.isdigit():
             newContent = newContent + i
         else:
-             newContent = newContent + " "   
+            newContent = newContent + " "
     content = newContent
-    content = content.replace(":"," ").replace("."," ").replace(";"," ")
+    content = content.replace(":", " ").replace(".", " ").replace(";", " ")
     word = content.split(" ")
     time = []
     for text in word:
@@ -106,6 +107,15 @@ def timeDetection(content: str) -> tuple:
     if (time[0] >= 0 and time[0] <= 23) and (time[1] >= 0 and time[1] <= 59):
         return tuple(time)
     return ()
+
+
+def genRandomKey() -> str:
+    charList = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+    res = ""
+    for i in range(5):
+        res += random.choice(charList)
+    return res
+
 
 def main():
     # print(isUseChannel(123))
@@ -123,6 +133,7 @@ def main():
     print(timeDetection("23:59 นาที"))
     print(timeDetection("13 โมง 23 นาที"))
     print(timeDetection("11ควยหี34"))
+
 
 if __name__ == "__main__":
     main()

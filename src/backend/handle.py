@@ -36,7 +36,7 @@ def loadData():
 
 def insertOfUser(idUser, timeSet: int, subject: str, at: str):
     global userData, timeTable
-    hashedTime = hash(timeSet)
+    hashedTime = timeSet
     if idUser not in userData:
         userData[idUser] = {
             "timeData": {
@@ -47,14 +47,16 @@ def insertOfUser(idUser, timeSet: int, subject: str, at: str):
         userData[idUser]["timeData"][hashedTime] = (subject, at)
 
     timeTable[hashedTime][idUser] = ((subject, at))
+    saveData()
 
 
 def delByTime(idUser, atTime: int):
     global userData, timeTable
-    hashedTime = hash(atTime)
+    hashedTime = atTime
     if idUser in userData and hashedTime in userData[idUser]["timeData"]:
         del userData[idUser]["timeData"][hashedTime]
     del timeTable[hashedTime][idUser]
+    saveData()
 
 
 def delAllTime(idUser):
@@ -64,6 +66,7 @@ def delAllTime(idUser):
             del timeTable[eachTimeData][idUser]
 
         del userData[idUser]
+    saveData()
 
 
 def getStrUserSubject(idUser) -> str:
@@ -86,7 +89,7 @@ def printUserSubject(idUser):
 
 def getStrTimeSubject(time: int) -> str:
     global userData, timeTable
-    hashedTime = hash(time)
+    hashedTime = time
     result = f"{'='*15}Time : {time}({hashedTime}) {'='*15}\n"
     if timeTable[hashedTime]:
         for e in timeTable[hashedTime]:
@@ -102,7 +105,7 @@ def printTimeSubject(time: int):
 
 def getTimeSubject(time: int):
     global userData, timeTable
-    hashedTime = hash(time)
+    hashedTime = time
     result = []
     if timeTable[hashedTime]:
         for userId in timeTable[hashedTime]:
@@ -127,6 +130,18 @@ def getallSubjects(idUser):
         for tim in userData[idUser]["timeData"]:
             tempp.add(userData[idUser]["timeData"][tim][0])
         return list(tempp)
+    else:
+        return []
+
+
+def getLinkfromSubject(idUser, subject: str):
+    global userData
+    if idUser in userData:
+        res = []
+        for tim in userData[idUser]["timeData"]:
+            if userData[idUser]["timeData"][tim][0] == subject:
+                return userData[idUser]["timeData"][tim][1]
+        return ""
     else:
         return []
 

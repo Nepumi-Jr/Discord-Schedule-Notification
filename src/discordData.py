@@ -5,6 +5,7 @@ thisData = dict()
 DEFAULT_DATA = {
     "modeNofi": "Subject",
     "state": "idle",
+    "stateKey": "AAAAA",
     "CMDmessID": 69,
     "temp": [],
 }
@@ -79,6 +80,29 @@ def getTemp(thisId: int) -> str:
 def setTemp(thisId: int, newTemp: list):
     if isExistID(thisId):
         thisData[thisId]["temp"] = newTemp.copy()
+        saveData()
+
+
+def setTempInd(thisId: int, ind: int, data):
+    if isExistID(thisId):
+        newTemp = getTemp(thisId)
+        rem = ind - len(newTemp) + 1
+        for i in range(rem):
+            newTemp.append("?")
+        newTemp[ind] = data
+        setTemp(thisId, newTemp)
+        saveData()
+
+
+def getStateKey(thisId: int) -> str:
+    if isExistID(thisId):
+        return thisData[thisId]["stateKey"]
+    return 0
+
+
+def setStateKey(thisId: int, newKey: str):
+    if isExistID(thisId):
+        thisData[thisId]["stateKey"] = newKey
         saveData()
 
 
