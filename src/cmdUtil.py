@@ -18,10 +18,9 @@ def isAdmin(idUser) -> bool:
     with open(file_path, 'r') as ID:
         while ID:
             line = ID.readline().strip()
-            if idUser == line:
+            if idUser.strip() == line:
                 return True
-            if line == "":
-                return False
+    return False
 
 
 def regisAdmin(idUser, passText: str) -> int:
@@ -30,7 +29,7 @@ def regisAdmin(idUser, passText: str) -> int:
     with open(file_path, 'r') as ID:
         while ID:
             line = ID.readline().strip()
-            if str(passText) == str(line):
+            if str(passText.strip()) == str(line.strip()):
                 passTextBool = True
                 break
             if line == "":

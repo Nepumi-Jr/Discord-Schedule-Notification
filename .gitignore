@@ -8,3 +8,4 @@ CHANNEL_SECRET
 env/
 NGROK_TOKEN
 useChannel.txt
+disData.yml
