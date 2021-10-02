@@ -45,7 +45,7 @@ async def delAllPrevMess(bot, thisChannelID):
 
 async def menuCmdCommand(chan):
     return await chan.send(":clock1:**ยินดีต้อนรับสู่การใช้งาน บอทขอลิงก์(ห้อง)เรียน**:clock1:\n \\* สามารถใช้ปุ่มด้านล่างนี้ในการควบคุมต่าง ๆ\n*แนะนำ : ไม่ควรใช้ห้องแชทนี้ในการสนทนาปกติ*",
-                           components=dUse.getMenuComponents())
+                           components=dUse.getMenuComponents(chan.id))
 
 
 async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
@@ -91,20 +91,10 @@ async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
     elif idFlow == "Add_SelSub":
         dData.setState(thisChannelID, "Add_SelSub")
         pKey = dData.makeNewKey(thisChannelID) + ":"
-        subjects = sData.getallSubjects(thisChannelID)
-        subOption = []
-        for s in subjects:
-            subOption.append(SelectOption(label=s, value=s))
-        subOption.append(SelectOption(label="+ เพิ่มวิชาใหม่",
-                         value="!!TheNewOneeeeeeeeeeeeeee!!",
-                         emoji="➕"))
         m = await thisChannel.send("**+ เพิ่มรายวิชา / เวลา +**\nกรุณาเลือกวิชาที่จะเพิ่มเวลาหรือเพิ่มวิชา",
                                    components=[
-                                       Select(
-                                           placeholder="กรุณาเลือกวิชา",
-                                           options=subOption,
-                                           custom_id=pKey+"add_SelectSubject"
-                                       ),
+                                       dUse.makeSelectSubject(
+                                           thisChannelID, pKey+"add_SelectSubject", True),
                                        dUse.backToMenu(pKey)
                                    ])
         dData.addMessageId(thisChannelID, m.id)
@@ -173,11 +163,8 @@ async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
         dData.setState(thisChannelID, "Add_AllTime")
         newTemp = dData.getTemp(thisChannelID)
         pKey = dData.makeNewKey(thisChannelID) + ":"
-        thisEm = Embed(
-            title=newTemp[0], description=newTemp[1], colour=Color.random())
-        timeDatas = sData.getTimesfromSubject(thisChannelID, newTemp[0])
-        for t in timeDatas:
-            thisEm.add_field(name=t, value="Ayaya", inline=True)
+        thisEm = dUse.getEmbedAllTimeFromSubject(
+            thisChannelID, newTemp[0], newTemp[1])
         m = await thisChannel.send(
             f"**ตารางเวลาของวิชานี้...**",
             embed=thisEm,
@@ -228,6 +215,8 @@ async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
         dData.setState(thisChannelID, "Add_NewTimeCon")
 
         newHash = curTemp[3] + curTemp[2] * 288
+        textTime = hashTime.hashBack(
+            newHash)[0] + " " + hashTime.hashBack(newHash)[1]
 
         menus = ActionRow(
             dUse.acceptButton(pKey+"add_newTimeCon_OK"),
@@ -237,6 +226,120 @@ async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
             f"เวลาถูกไหม????",
             embed=Embed(
                 title=curTemp[0],
-                description=hashTime.hashBack(newHash), colour=Color.random()),
+                description=textTime, colour=Color.random()),
             components=[menus])
         dData.addMessageId(thisChannelID, m.id)
+
+    # ? Edit Goes hereeeee
+
+    elif idFlow == "Edi_SelSub":
+        dData.setState(thisChannelID, "Edi_SelSub")
+        pKey = dData.makeNewKey(thisChannelID) + ":"
+        m = await thisChannel.send("**🔧 แก้ไขรายวิชา / เวลา +**\nกรุณาเลือกวิชาที่จะแก้ไข",
+                                   components=[
+                                       dUse.makeSelectSubject(
+                                           thisChannelID, pKey+"edi_SelectSubject", True),
+                                       dUse.backToMenu(pKey)
+                                   ])
+        dData.addMessageId(thisChannelID, m.id)
+
+    elif idFlow == "Edi_Sub":
+        await delAllPrevMess(bot, thisChannelID)
+        dData.setState(thisChannelID, "Edi_Sub")
+        newTemp = dData.getTemp(thisChannelID)
+        pKey = dData.makeNewKey(thisChannelID) + ":"
+        thisEm = dUse.getEmbedAllTimeFromSubject(
+            thisChannelID, newTemp[0], newTemp[1])
+        m = await thisChannel.send(
+            f"**ต้องการแก้ไขในส่วนไหน...**",
+            embed=thisEm,
+            components=[ActionRow(
+                dUse.backToMenu(pKey),
+                dUse.anyButton(pKey+"edit_sub_subj", "แก้ไขชื่อวิชา", "📕"),
+                dUse.anyButton(pKey+"edit_sub_link", "แก้ไขลิ้ง", "🔗"),
+                dUse.anyButton(pKey+"edit_sub_Time", "แก้ไขเวลา", "🕞"),
+            )])
+        dData.addMessageId(thisChannelID, m.id)
+
+    elif idFlow == "Edi_ChaSub":
+        await delAllPrevMess(bot, thisChannelID)
+        dData.setState(thisChannelID, "Edi_ChaSub")
+        await thisChannel.send(f":speech_balloon:กรุณาใส่ชื่อวิชาใหม่ จากวิชา {dData.getTempInd(thisChannelID, 0)} (ไม่เกิน 20 ตัวอักษร)")
+
+    elif idFlow == "Edi_ChaLink":
+        await delAllPrevMess(bot, thisChannelID)
+        dData.setState(thisChannelID, "Edi_ChaLink")
+        curSubject = dData.getTempInd(thisChannelID, 0)
+        await thisChannel.send(
+            f":closed_book: **วิชา `{curSubject}`**\n:speech_balloon: กรุณาใส่ลิ้งเรียนเลย\n*ขอแค่ลิ้งก็พอ*")
+
+    elif idFlow == "Edi_ChaTime":
+        await delAllPrevMess(bot, thisChannelID)
+        dData.setState(thisChannelID, "Edi_ChaTime")
+        curSubject = dData.getTempInd(thisChannelID, 0)
+        allTimes = sData.getTimesfromSubject(thisChannelID, curSubject, False)
+        pKey = dData.makeNewKey(thisChannelID) + ":"
+        thisOptions = []
+        for tim in allTimes:
+            timeText = hashTime.hashBack(tim)
+            thisOptions.append(SelectOption(
+                label=f"{dUse.fromTerzTimeToStr(timeText)}", value=tim))
+
+        m = await thisChannel.send(
+            f"**กรุณาเลือกเวลาที่ต้องการแก้ไข...**",
+            embed=dUse.getEmbedAllTimeFromSubject(
+                thisChannelID, curSubject),
+            components=[ActionRow(
+                dUse.anyButton(pKey+"edit_chaTimSub",
+                               "ย้อนกลับไปที่เมนูแก้ไข", "↩"),
+
+            ), Select(
+                placeholder="กรุณาเลือกเวลาที่จะแก้ไข",
+                options=thisOptions,
+                custom_id=pKey+"edit_chaTime"
+            )])
+        dData.addMessageId(thisChannelID, m.id)
+
+    elif idFlow == "Edi_ChaTimeDay":
+        await delAllPrevMess(bot, thisChannelID)
+        dData.setState(thisChannelID, "Edi_ChaTimeDay")
+        pKey = dData.makeNewKey(thisChannelID) + ":"
+        dayInThai = ["อาทิตย์", "จันทร์", "อังคาร",
+                     "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"]
+        fromDay = hashTime.hashBack(
+            dData.getTempInd(thisChannelID, 2))[0]
+        m = await thisChannel.send(
+            f":calendar_spiral:**กรุณาเลือกวันที่จะเปลี่ยนจาก`{fromDay}`**:calendar_spiral:",
+            components=[ActionRow(
+                dUse.anyButton(pKey+"edi_chaTimeDay_0",
+                               "วัน"+dayInThai[0], "🕒"),
+                dUse.anyButton(pKey+"edi_chaTimeDay_1",
+                               "วัน"+dayInThai[1], "🕒"),
+                dUse.anyButton(pKey+"edi_chaTimeDay_2", "วัน"+dayInThai[2], "🕒")),
+                ActionRow(
+                dUse.anyButton(pKey+"edi_chaTimeDay_3",
+                               "วัน"+dayInThai[3], "🕒"),
+                dUse.anyButton(pKey+"edi_chaTimeDay_4",
+                               "วัน"+dayInThai[4], "🕒"),
+                dUse.anyButton(pKey+"edi_chaTimeDay_5",
+                               "วัน"+dayInThai[5], "🕒"),
+                dUse.anyButton(pKey+"edi_chaTimeDay_6",
+                               "วัน"+dayInThai[6], "🕒"),
+            )])
+        dData.addMessageId(thisChannelID, m.id)
+
+    elif idFlow == "Edi_ChaTimeTime":
+        await delAllPrevMess(bot, thisChannelID)
+
+        subJ = dData.getTempInd(thisChannelID, 0)
+        fromTime = hashTime.hashBack(dData.getTempInd(thisChannelID, 2))
+        dData.setState(thisChannelID, "Edi_ChaTimeTime")
+        dayInThai = ["อาทิตย์", "จันทร์", "อังคาร",
+                     "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"]
+        newDay = dayInThai[dData.getTempInd(thisChannelID, 3)]
+
+        await thisChannel.send(
+            f":clock3:วิชา `{subJ}`...\nจากเรียนใน `{dUse.fromTerzTimeToStr(fromTime)}`\nเปลี่ยนเป็น `วัน{newDay}` เวลา...?\n" +
+            "* - ใส่เป็นเวลา `xx:xx` มาที่แชทนี้เลย*\n" +
+            "* - พยายามให้ตั้งก่อนเวลาเรียนประมาณ 5-10 นาที...*\n" +
+            "* - เวลาจะรับได้แค่เวลาที่หารด้วย 5 ลงตัว เช่น 0:00 0:05 0:10 เป็นต้น*")

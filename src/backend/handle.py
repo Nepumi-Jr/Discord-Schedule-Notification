@@ -152,16 +152,31 @@ def getLinkfromSubject(idUser, subject: str):
         return []
 
 
-def getTimesfromSubject(idUser, subject: str):
+def getTimesfromSubject(idUser, subject: str, isHashBack=True):
     global userData
     if idUser in userData:
         res = []
         for tim in userData[idUser]["timeData"]:
             if userData[idUser]["timeData"][tim][0] == subject:
-                res.append(hashBack(tim))
+                if isHashBack:
+                    res.append(hashBack(tim))
+                else:
+                    res.append(tim)
         return res
     else:
         return []
+
+
+def getDesFromSubject(idUser, subject: str):
+    global userData
+    if idUser in userData:
+        res = "???"
+        for tim in userData[idUser]["timeData"]:
+            if userData[idUser]["timeData"][tim][0] == subject:
+                return userData[idUser]["timeData"][tim][1]
+        return res
+    else:
+        return "???"
 
 
 def delSubject(idUser, subj, saveD=True):

@@ -78,6 +78,15 @@ def getTemp(thisId: int) -> str:
     return 0
 
 
+def getTempInd(thisId: int, ind: int) -> str:
+    if isExistID(thisId):
+        bData = thisData[thisId]["temp"]
+        if ind < len(bData):
+            return bData[ind]
+        return None
+    return None
+
+
 def setTemp(thisId: int, newTemp: list):
     if isExistID(thisId):
         thisData[thisId]["temp"] = newTemp.copy()

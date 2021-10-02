@@ -12,7 +12,9 @@ from src.printUtil import *
 from src.cmdUtil import *
 from src import discordData as dData
 from src.backend import handle as sData
+from src.backend import hashTime
 from src import dialogFlow as dFlow
+from src import discordComUse as dUse
 
 bot = commands.Bot(command_prefix="!")
 DiscordComponents(bot)
@@ -91,6 +93,46 @@ async def on_message(mes: discord.message.Message):
         else:
             await dFlow.callFlow("Add_NewTimeCon", bot, thisChannelID, list(res))
 
+    elif curState == "Edi_ChaSub":
+        curSubject = mes.content.strip().replace("\n", "")
+        if len(curSubject) > 20:
+            curSubject = curSubject[:20] + "..."
+        if curSubject:
+            oldSub = dData.getTemp(thisChannelID)[0]
+            sData.changeSubject(thisChannelID, oldSub, curSubject)
+            dData.setTempInd(thisChannelID, 0, curSubject)
+            await dFlow.callFlow("Edi_Sub", bot, thisChannelID)
+
+    elif curState == "Edi_ChaLink":
+        curLink = mes.content.strip()
+        if len(curLink) > 100:
+            curLink = curLink[:100]
+        if curLink[0] == "<" and curLink[-1] == ">":
+            curLink = curLink[1:-1]
+        if curLink:
+            oldSubject = dData.getTemp(thisChannelID)[0]
+            sData.changeLink(thisChannelID, oldSubject, curLink)
+            dData.setTempInd(thisChannelID, 1, curLink)
+            await dFlow.callFlow("Edi_Sub", bot, thisChannelID)
+
+    elif curState == "Edi_ChaTimeTime":
+        curTime = mes.content.strip()
+        res = timeDetection(curTime)
+        if len(res) != 2:
+            await mes.channel.send(
+                f"กรุณาใส่เวลาที่ถูกต้อง เช่น `{random.randint(0,23)}:{random.randint(0,59)}`")
+        else:
+            fromTimeHased = dData.getTempInd(thisChannelID, 2)
+            fromTime = hashTime.hashBack(fromTimeHased)
+            newTimeHashed = dData.getTempInd(
+                thisChannelID, 3)*24*12 + res[0] * 12 + res[1]
+            newTime = hashTime.hashBack(newTimeHashed)
+            sData.changeTime(thisChannelID, fromTimeHased, newTimeHashed)
+            await mes.channel.send(
+                f"🔄เปลี่ยนเวลาจาก `{dUse.fromTerzTimeToStr(fromTime)}` เป็น `{dUse.fromTerzTimeToStr(newTime)}` สำเร็จ")
+
+            await dFlow.callFlow("Edi_Sub", bot, thisChannelID)
+
 
 @bot.event
 async def on_button_click(inter: interaction.Interaction):
@@ -114,7 +156,6 @@ async def on_button_click(inter: interaction.Interaction):
 
     elif thisButtonId == "backToMenu":
         await dFlow.callFlow("backToIdle", bot, thisChannelID)
-
     elif thisButtonId == "addButton" and curState == "idle":
         await dFlow.callFlow("Add_SelSub", bot, thisChannelID)
 
@@ -146,6 +187,23 @@ async def on_button_click(inter: interaction.Interaction):
         else:
             await dFlow.callFlow("Add_NewDay", bot, thisChannelID)
 
+    elif thisButtonId == "editButton" and curState == "idle":
+        await dFlow.callFlow("Edi_SelSub", bot, thisChannelID)
+    elif thisButtonId.startswith("edit_sub_") and curState == "Edi_Sub":
+        if thisButtonId.endswith("subj"):
+            await dFlow.callFlow("Edi_ChaSub", bot, thisChannelID)
+        elif thisButtonId.endswith("link"):
+            await dFlow.callFlow("Edi_ChaLink", bot, thisChannelID)
+        else:
+            await dFlow.callFlow("Edi_ChaTime", bot, thisChannelID)
+    elif thisButtonId == "edit_chaTimSub" and curState == "Edi_ChaTime":
+        await dFlow.callFlow("Edi_Sub", bot, thisChannelID)
+
+    elif thisButtonId.startswith("edi_chaTimeDay_") and curState == "Edi_ChaTimeDay":
+        res = int(thisButtonId[15:])
+        dData.setTempInd(thisChannelID, 3, res)
+        await dFlow.callFlow("Edi_ChaTimeTime", bot, thisChannelID)
+
     await inter.respond(type=6)
 
 
@@ -169,6 +227,14 @@ async def on_select_option(inter: interaction.Interaction):
             thisLink = sData.getLinkfromSubject(thisChannelID, selecting)
             dData.setTempInd(thisChannelID, 1, thisLink)
             await dFlow.callFlow("Add_AllTime", bot, thisChannelID)
+    if thisButtonId == "edi_SelectSubject":
+        dData.setTempInd(thisChannelID, 0, selecting)
+        thisLink = sData.getLinkfromSubject(thisChannelID, selecting)
+        dData.setTempInd(thisChannelID, 1, thisLink)
+        await dFlow.callFlow("Edi_Sub", bot, thisChannelID)
+    if thisButtonId == "edit_chaTime":
+        dData.setTempInd(thisChannelID, 2, int(selecting))
+        await dFlow.callFlow("Edi_ChaTimeDay", bot, thisChannelID)
     await inter.respond(type=6)
 
 

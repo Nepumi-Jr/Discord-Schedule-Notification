@@ -1,8 +1,13 @@
 from discord_components import Select, Button, DiscordComponents, interaction, ActionRow, SelectOption
 from discord_components.component import ButtonStyle
+from discord.colour import Color
+from discord.embeds import Embed
+
+from src.backend import handle as sData
 
 
-def getMenuComponents():
+def getMenuComponents(thisChannelID):
+    editDelDisable = not sData.isExistId(thisChannelID)
     return [
         ActionRow(
             Button(
@@ -15,13 +20,13 @@ def getMenuComponents():
                 custom_id="editButton",
                 style=ButtonStyle.gray,
                 emoji="🔨",
-                disabled=True),
+                disabled=editDelDisable),
             Button(
                 label="ลบรายวิชา/เวลา",
                 custom_id="delButton",
                 style=ButtonStyle.red,
                 emoji="❌",
-                disabled=True),
+                disabled=editDelDisable),
             Button(
                 label="วุ้ฮู้วววว วันนี้ไม่มีเรียน",
                 custom_id="toggleNoToday",
@@ -69,6 +74,20 @@ def getMenuComponents():
     ]
 
 
+def getEmbedAllTimeFromSubject(thisChannelID, subject, des=None):
+
+    if not des:
+        des = sData.getDesFromSubject(thisChannelID, subject)
+
+    thisEm = Embed(
+        title=subject, description=des, colour=Color.random())
+    timeDatas = sData.getTimesfromSubject(thisChannelID, subject)
+    for t in timeDatas:
+        thisEm.add_field(name=t[0], value=t[1], inline=True)
+
+    return thisEm
+
+
 def anyButton(customId, llabel, eemoji=""):
     return Button(
         label=llabel,
@@ -91,3 +110,23 @@ def backToMenu(pKey):
         custom_id=pKey + "backToMenu",
         style=ButtonStyle.gray,
         emoji="↩")
+
+
+def makeSelectSubject(thisChannelID, customId, makeNewSubject):
+    subOption = []
+    subjects = sData.getallSubjects(thisChannelID)
+    for s in subjects:
+        subOption.append(SelectOption(label=s, value=s))
+    if makeNewSubject:
+        subOption.append(SelectOption(label="+ เพิ่มวิชาใหม่",
+                                      value="!!TheNewOneeeeeeeeeeeeeee!!",
+                                      emoji="➕"))
+    return Select(
+        placeholder="กรุณาเลือกวิชา",
+        options=subOption,
+        custom_id=customId
+    )
+
+
+def fromTerzTimeToStr(timeTerz):
+    return f"{timeTerz[0]} เวลา {timeTerz[1]}"
