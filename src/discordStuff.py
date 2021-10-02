@@ -56,8 +56,6 @@ async def on_message(mes: discord.message.Message):
     elif mes.content.strip().lower().startswith("!+admin"):
         passText = mes.content.replace("!+admin", "").strip()
         res = regisAdmin(str(thisChannelID), passText)
-        print("pass:", passText)
-        print(isAdmin(str(thisChannelID)))
         if res == 1:
             await mes.channel.send(
                 ":computer:**ยินดีต้อนรับ Adminnnnnnn**:computer:\nลองใช้คำสั่ง `!+help` ในการดูว่าแอดมินสามารถใช้คำสั่งอะไรได้บ้าง")
@@ -87,7 +85,6 @@ async def on_message(mes: discord.message.Message):
     elif curState == "Add_NewTime":
         curTime = mes.content.strip()
         res = timeDetection(curTime)
-        print(curTime, res)
         if len(res) != 2:
             await mes.channel.send(
                 f"กรุณาใส่เวลาที่ถูกต้อง เช่น `{random.randint(0,23)}:{random.randint(0,59)}`")
@@ -114,6 +111,9 @@ async def on_button_click(inter: interaction.Interaction):
 
     elif thisButtonId == "FreloadButton":
         await dFlow.callFlow("forceReload", bot, thisChannelID)
+
+    elif thisButtonId == "backToMenu":
+        await dFlow.callFlow("backToIdle", bot, thisChannelID)
 
     elif thisButtonId == "addButton" and curState == "idle":
         await dFlow.callFlow("Add_SelSub", bot, thisChannelID)

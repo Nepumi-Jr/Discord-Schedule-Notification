@@ -34,7 +34,7 @@ def loadData():
         timeTable = [dict() for i in range(2020)]
 
 
-def insertOfUser(idUser, timeSet: int, subject: str, at: str):
+def insertOfUser(idUser, timeSet: int, subject: str, at: str, saveD=True):
     global userData, timeTable
     hashedTime = timeSet
     if idUser not in userData:
@@ -47,26 +47,32 @@ def insertOfUser(idUser, timeSet: int, subject: str, at: str):
         userData[idUser]["timeData"][hashedTime] = (subject, at)
 
     timeTable[hashedTime][idUser] = ((subject, at))
-    saveData()
+
+    if saveD:
+        saveData()
 
 
-def delByTime(idUser, atTime: int):
+def delByTime(idUser, atTime: int, saveD=True):
     global userData, timeTable
     hashedTime = atTime
     if idUser in userData and hashedTime in userData[idUser]["timeData"]:
         del userData[idUser]["timeData"][hashedTime]
     del timeTable[hashedTime][idUser]
-    saveData()
+
+    if saveD:
+        saveData()
 
 
-def delAllTime(idUser):
+def delAllTime(idUser, saveD=True):
     global userData, timeTable
     if idUser in userData:
         for eachTimeData in userData[idUser]["TimeData"]:
             del timeTable[eachTimeData][idUser]
 
         del userData[idUser]
-    saveData()
+
+    if saveD:
+        saveData()
 
 
 def getStrUserSubject(idUser) -> str:
@@ -156,6 +162,66 @@ def getTimesfromSubject(idUser, subject: str):
         return res
     else:
         return []
+
+
+def delSubject(idUser, subj, saveD=True):
+
+    thatTime = getTimesfromSubject(subj)
+
+    for tim in thatTime:
+        delByTime(idUser, tim, False)
+
+    if saveD:
+        saveData()
+
+
+def changeSubject(idUser, fromSubject, toSubject):
+
+    global userData
+    if idUser in userData:
+        thisData = []
+        for tim in userData[idUser]["timeData"]:
+            if userData[idUser]["timeData"][tim][0] == fromSubject:
+                thisData.append(
+                    (fromSubject, userData[idUser]["timeData"][tim][1], tim))
+
+        for d in thisData:
+            delByTime(idUser, d[2], False)
+            insertOfUser(idUser, d[2], toSubject, d[1], False)
+
+        saveData()
+
+
+def changeLink(idUser, subject, toLink):
+
+    global userData
+    if idUser in userData:
+        thisData = []
+        for tim in userData[idUser]["timeData"]:
+            if userData[idUser]["timeData"][tim][0] == subject:
+                thisData.append(
+                    (subject, userData[idUser]["timeData"][tim][1], tim))
+
+        for d in thisData:
+            delByTime(idUser, d[2], False)
+            insertOfUser(idUser, d[2], subject, toLink, False)
+        saveData()
+
+
+def changeTime(idUser, fromTime, toTime):
+    global userData
+    if idUser in userData and fromTime in userData[idUser]["timeData"]:
+        thisData = userData[idUser]["timeData"][fromTime]
+        delByTime(idUser, fromTime, False)
+        insertOfUser(idUser, toTime, thisData[0], thisData[1], False)
+        saveData()
+
+
+def isExistId(idUser):
+    if idUser in userData:
+        return len(userData[idUser]["timeData"]) > 0
+    else:
+        return False
 
 
 if __name__ == "__main__":
