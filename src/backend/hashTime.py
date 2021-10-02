@@ -73,9 +73,10 @@ def hashBack(timeHased: int) -> tuple:
     else:
         minute = str(minute)
     time = hour + ":" + minute + " น."
-    return (day,time)
+    return (day, time)
 
-def thaiDay(numOfDay: int)-> str:
+
+def thaiDay(numOfDay: int) -> str:
     if numOfDay == 0:
         return "วันอาทิตย์"
     elif numOfDay == 1:
@@ -91,9 +92,11 @@ def thaiDay(numOfDay: int)-> str:
     elif numOfDay == 6:
         return "วันวันเสาร์"
 
+
 def main():
     # print(hash(1632026672))
-    print(hashBack(165))
+    for i in range(2016):
+        print(i, hashBack(i))
 
 
 if __name__ == "__main__":
