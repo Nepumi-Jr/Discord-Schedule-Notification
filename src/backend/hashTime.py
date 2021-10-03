@@ -49,14 +49,10 @@ def hash(epochTime: int) -> int:
 
 
 def hashBack(timeHased: int) -> tuple:
-    # TODO : เหมือน Hash แต่รับข้อมูลเป็นเวลาที่ถูก hash
-    # TODO : ให้ส่งค่าออกมาเป็น string ภาษาไทยที่สวยงาม
     thaiDay=["วันอาทิตย์","วันจันทร์","วันอังคาร","วันพุธ","วันพฤหัสบดี","วันศุกร์","วันเสาร์",]
-    # ! skrrt
     hour = int((timeHased * 5) / 60)
     day = int(hour / 24)
     hour = hour - (day*24)
-    # print(hour)
     if day >= 7:
         day = day % 7
     minute = (timeHased * 5) % 60
@@ -72,7 +68,7 @@ def hashBack(timeHased: int) -> tuple:
     else:
         minute = str(minute)
     time = hour + ":" + minute + " น."
-    return (day,time)
+    return (day, time)
 
 def main():
     for i in range(2016):

@@ -8,6 +8,7 @@ DEFAULT_DATA = {
     "stateKey": "AAAAA",
     "CMDmessID": 69,
     "temp": [],
+    "prevMessage": []
 }
 
 
@@ -77,6 +78,15 @@ def getTemp(thisId: int) -> str:
     return 0
 
 
+def getTempInd(thisId: int, ind: int) -> str:
+    if isExistID(thisId):
+        bData = thisData[thisId]["temp"]
+        if ind < len(bData):
+            return bData[ind]
+        return None
+    return None
+
+
 def setTemp(thisId: int, newTemp: list):
     if isExistID(thisId):
         thisData[thisId]["temp"] = newTemp.copy()
@@ -106,6 +116,12 @@ def setStateKey(thisId: int, newKey: str):
         saveData()
 
 
+def makeNewKey(thisId: int) -> str:
+    newPKey = cmdUtil.genRandomKey()
+    setStateKey(thisId, newPKey)
+    return newPKey
+
+
 def createNewID(thisId: int, messId: int):
     if not isExistID(thisId):
         thisData[thisId] = DEFAULT_DATA.copy()
@@ -116,4 +132,22 @@ def createNewID(thisId: int, messId: int):
 def removeID(thisId: int):
     if isExistID(thisId):
         thisData.pop(thisId)
+        saveData()
+
+
+def addMessageId(thisId: int, mesId: int):
+    if isExistID(thisId):
+        thisData[thisId]["prevMessage"].append(mesId)
+        saveData()
+
+
+def getPrevMess(thisId: int) -> list:
+    if isExistID(thisId):
+        return thisData[thisId]["prevMessage"].copy()
+    return []
+
+
+def clearPrevMess(thisId: int):
+    if isExistID(thisId):
+        thisData[thisId]["prevMessage"].clear()
         saveData()

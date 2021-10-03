@@ -1,11 +1,13 @@
 Idle:
     first state
     - Add_SelSub
+    - Edi_SelSub
 
 Add_SelSub:
     Select exist subject or Add new one
     - Add_AllTime
     - Add_Sub
+    - Idle
 
 Add_Sub:
     inserting Subject
@@ -46,5 +48,34 @@ Add_NewTimeCon:
 
 
 
+Edi_SelSub:
+    Select exist subject
+    - Edi_Sub
 
+Edi_Sub:
+    choose what to edit in this Subject
+    - Edi_ChaSub
+    - Edi_ChaLink
+    - Edi_ChaTime
+    - Idle
 
+Edi_ChaSub:
+    insert new Subject name
+    - Edi_Sub
+
+Edi_ChaLink:
+    insert new link
+    - Edi_Sub
+
+Edi_ChaTime:
+    SelectTime
+    - Edi_ChaTimeDay
+    - Edi_Sub
+
+Edi_ChaTimeDay:
+    selectNewDay
+    - Edi_ChaTimeTime
+
+Edi_ChaTimeTime:
+    TypeNewTime
+    - Edi_Sub
