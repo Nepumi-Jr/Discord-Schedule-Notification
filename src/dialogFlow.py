@@ -179,7 +179,7 @@ async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
         else:
             await thisChannel.send("เ ป็ น ไ ป ไ ม่ ไ ด้")
     elif idFlow == "byebye":
-        dData.makeNewKey()
+        dData.makeNewKey(thisChannelID)
         await doDeleteLastCMDMessage(bot, thisChannelID)
         await delAllPrevMess(bot, thisChannelID)
         dData.removeID(thisChannelID)
