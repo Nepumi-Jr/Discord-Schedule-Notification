@@ -8,6 +8,7 @@ DEFAULT_DATA = {
     "state": "idle",
     "stateKey": "AAAAA",
     "CMDmessID": 69,
+    "notiMessId": -1,
     "temp": [],
     "prevMessage": [],
     "vacationDays": 0,
@@ -85,6 +86,18 @@ def setMessID(thisId: int, messId: int):
 def getMessID(thisId: int):
     if isExistID(thisId):
         return thisData[thisId]["CMDmessID"]
+    return 0
+
+
+def setNotiMessID(thisId: int, messId: int):
+    if isExistID(thisId):
+        thisData[thisId]["notiMessId"] = messId
+        saveData()
+
+
+def getNotiMessID(thisId: int):
+    if isExistID(thisId):
+        return thisData[thisId]["notiMessId"]
     return 0
 
 

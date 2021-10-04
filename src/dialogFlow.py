@@ -10,6 +10,8 @@ from src.backend import hashTime
 from src import cmdUtil as util
 from src import discordComUse as dUse
 
+VERSION = "เวอร์ชั่น Beta 1.0.1 (แก้ไข 5 ต.ค. 64)"
+
 dayInThai = ["อาทิตย์", "จันทร์", "อังคาร",
              "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"]
 dayColor = [Color.red(), Color.gold(), Color.magenta(),
@@ -35,6 +37,14 @@ async def getMessage(bot, chaID, messID):
 
 
 async def doDeleteLastCMDMessage(bot, thisChannelID):
+    try:
+        lassIdNoti = dData.getNotiMessID(thisChannelID)
+        if lassIdNoti != -1:
+            lastMessage = await getMessage(bot, thisChannelID, lassIdNoti)
+            await lastMessage.delete()
+    except:
+        pass
+
     try:
         lastMessage = await getMessage(bot, thisChannelID, dData.getMessID(thisChannelID))
         await lastMessage.delete()
@@ -72,7 +82,7 @@ async def messageOfContent(chan):
         for d in datas:
             thisMenuEmbed.add_field(
                 name=f"[{dUse.fromTerzTimeToStr(hashTime.hashBack(d[0]))}] {d[1][0]}", value=str(d[1][1]), inline=False)
-        await chan.send(embed=thisMenuEmbed)
+        return await chan.send(embed=thisMenuEmbed)
     else:
         timeHased = dyna[1]
         dayOfTheWeek = dData.getDayOfWeek()
@@ -82,8 +92,9 @@ async def messageOfContent(chan):
             description=f"{dUse.fromTerzTimeToStr(hashTime.hashBack(timeHased))}",
             colour=dayColor[dayOfTheWeek])
         thisMenuEmbed.add_field(name="ลิ้ง", value=datas[1])
+
         try:
-            await chan.send(embed=thisMenuEmbed, components=[
+            x = await chan.send(embed=thisMenuEmbed, components=[
                 Button(
                     label="ลิ้งเรียน",
                     style=ButtonStyle.URL,
@@ -92,7 +103,8 @@ async def messageOfContent(chan):
                 )
             ])
         except:
-            await chan.send(embed=thisMenuEmbed)
+            x = await chan.send(embed=thisMenuEmbed)
+        return x
 
 
 async def menuCmdCommand(chan):
@@ -115,13 +127,15 @@ async def menuCmdCommand(chan):
             thisChanId) and "เตือนทุก ๆ วัน" or "เตือนทุก ๆ วิชา")
         thisMenuEmbed.add_field(name="🏖 หยุดเรียนหรือไม่", value=dData.getVacation(
             thisChanId) == 0 and "เรียนตามปกติ" or f"วู้ว หยุดอีก {dData.getVacation(thisChanId)} วัน")
+        thisMenuEmbed.set_footer(text=VERSION)
+
         return await chan.send(":clock1:**ยินดีต้อนรับสู่การใช้งาน บอทขอลิงก์(ห้อง)เรียน**:clock1:\n \\* สามารถใช้ปุ่มด้านล่างนี้ในการควบคุมต่าง ๆ\n*แนะนำ : ไม่ควรใช้ห้องแชทนี้ในการสนทนาปกติ*",
                                embed=thisMenuEmbed,
                                components=dUse.getMenuComponents(thisChanId))
 
 
 async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
-
+    global dayInThai
     thisChannel = await bot.fetch_channel(thisChannelID)
     if idFlow == "callSchedule":
         if dData.isExistID(thisChannelID):
@@ -130,24 +144,50 @@ async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
             dData.makeNewKey(thisChannelID)
             dData.setTemp(thisChannelID, [])
             await doDeleteLastCMDMessage(bot, thisChannelID)
-            await messageOfContent(thisChannel)
+            thisMes = await messageOfContent(thisChannel)
+            if thisMes:
+                dData.setNotiMessID(thisChannelID, thisMes.id)
             thisMes = await menuCmdCommand(thisChannel)
             dData.setMessID(thisChannelID, thisMes.id)
         else:
-            await messageOfContent(thisChannel)
+            thisMes = await messageOfContent(thisChannel)
+            if thisMes:
+                dData.setNotiMessID(thisChannelID, thisMes.id)
             thisMes = await menuCmdCommand(thisChannel)
             dData.createNewID(thisChannelID, thisMes.id)
     elif idFlow == "deleteChan":
         if dData.isExistID(thisChannelID):
-            await doDeleteLastCMDMessage(bot, thisChannelID)
-            dData.removeID(thisChannelID)
-            sData.delAllTime(thisChannelID)
-            await thisChannel.send(":boom:**ลบแชลเนลเรียบร้อย**:boom:\nหวังว่าจะได้ให้บริการอีกครั้ง *(ซึม...)*")
+            dData.setState(thisChannelID, "delChan_Con")
+            pKey = dData.makeNewKey(thisChannelID) + ":"
+            thisEmbed = Embed(title="สิ่งที่จะหายไป",
+                              description="ห า ย ไ ป", colour=Color.dark_red()),
+            thisEmbed.add_field(
+                name="ข้อมูลตาราง", value="ตารางจะหายไปทั้งหมด และหากสร้างใหม่ ข้อมูลเก่าจะไม่กู้คืน(กรอกใหม่)", inline=False)
+            thisEmbed.add_field(name="การตั้งค่า",
+                                value="การตั้งค่าจะหายไป", inline=False)
+            m = await thisChannel.send("**💥💥คุณกำลังจะลบแชลเนลนี้💥💥**\nหากลบแล้ว จะไม่สามารถกู้คืนได้ แน่ใจแล้วหรือไม่",
+                                       embed=thisEmbed,
+                                       components=[ActionRow(
+                                           Button(
+                                               label="แน่ใจแล้วที่จะลบทิ้ง!!!",
+                                               custom_id=pKey + "delChan_Bye",
+                                               style=ButtonStyle.red,
+                                               emoji="💥"),
+                                           dUse.backToMenu(pKey)
+                                       )])
+            dData.addMessageId(thisChannelID, m.id)
         else:
             await thisChannel.send("เ ป็ น ไ ป ไ ม่ ไ ด้")
+    elif idFlow == "byebye":
+        await doDeleteLastCMDMessage(bot, thisChannelID)
+        dData.removeID(thisChannelID)
+        sData.delAllTime(thisChannelID)
+        await thisChannel.send(":boom:**ลบแชลเนลเรียบร้อย**:boom:\nหวังว่าจะได้ให้บริการอีกครั้ง *(ซึม...)*")
     elif idFlow == "justReload":
         await doDeleteLastCMDMessage(bot, thisChannelID)
-        await messageOfContent(thisChannel)
+        thisMes = await messageOfContent(thisChannel)
+        if thisMes:
+            dData.setNotiMessID(thisChannelID, thisMes.id)
         thisMes = await menuCmdCommand(thisChannel)
         dData.setMessID(thisChannelID, thisMes.id)
     elif idFlow == "forceReload":
@@ -157,7 +197,9 @@ async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
         dData.setTemp(thisChannelID, [])
         await thisChannel.send("🔁เริ่มต้นระบบใหม่🔁")
         await doDeleteLastCMDMessage(bot, thisChannelID)
-        await messageOfContent(thisChannel)
+        thisMes = await messageOfContent(thisChannel)
+        if thisMes:
+            dData.setNotiMessID(thisChannelID, thisMes.id)
         thisMes = await menuCmdCommand(thisChannel)
         dData.setMessID(thisChannelID, thisMes.id)
     elif idFlow == "backToIdle":
@@ -166,9 +208,29 @@ async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
         dData.setTemp(thisChannelID, [])
         dData.makeNewKey(thisChannelID)
         await doDeleteLastCMDMessage(bot, thisChannelID)
-        await messageOfContent(thisChannel)
+        thisMes = await messageOfContent(thisChannel)
+        if thisMes:
+            dData.setNotiMessID(thisChannelID, thisMes.id)
         thisMes = await menuCmdCommand(thisChannel)
         dData.setMessID(thisChannelID, thisMes.id)
+
+    elif idFlow == "Sche_call":
+
+        for i in range(7):
+            dayOfTheWeek = i
+            datas = sData.getSubjectOfDay(thisChannelID, dayOfTheWeek)
+            if datas:
+                thisMenuEmbed = Embed(
+                    title=f"วัน{dayInThai[dayOfTheWeek]}",
+                    description=f"มีทั้งหมด {len(datas)} วิชาในวันนี้",
+                    colour=dayColor[dayOfTheWeek])
+
+                for d in datas:
+                    thisMenuEmbed.add_field(
+                        name=f"[{dUse.fromTerzTimeToStr(hashTime.hashBack(d[0]))}] {d[1][0]}", value=str(d[1][1]), inline=False)
+                await thisChannel.send(embed=thisMenuEmbed)
+
+        await callFlow("justReload", bot, thisChannelID)
 
     # ? ADDD
 
@@ -290,7 +352,6 @@ async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
         await thisChannel.send(
             f":clock3:วิชา `{ttemp[0]}` ในทุก ๆ `วัน{dayInThai[dlcc]}` ตอนกี่โมง??\n" +
             "* - ใส่เป็นเวลา `xx:xx` มาที่แชทนี้เลย*\n" +
-            "* - พยายามให้ตั้งก่อนเวลาเรียนประมาณ 5-10 นาที...*\n" +
             "* - เวลาจะรับได้แค่เวลาที่หารด้วย 5 ลงตัว เช่น 0:00 0:05 0:10 เป็นต้น*")
 
     elif idFlow == "Add_NewTimeCon":
@@ -426,7 +487,6 @@ async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
         await thisChannel.send(
             f":clock3:วิชา `{subJ}`...\nจากเรียนใน `{dUse.fromTerzTimeToStr(fromTime)}`\nเปลี่ยนเป็น `วัน{newDay}` เวลา...?\n" +
             "* - ใส่เป็นเวลา `xx:xx` มาที่แชทนี้เลย*\n" +
-            "* - พยายามให้ตั้งก่อนเวลาเรียนประมาณ 5-10 นาที...*\n" +
             "* - เวลาจะรับได้แค่เวลาที่หารด้วย 5 ลงตัว เช่น 0:00 0:05 0:10 เป็นต้น*")
 
     elif idFlow == "Rem_SelSub":

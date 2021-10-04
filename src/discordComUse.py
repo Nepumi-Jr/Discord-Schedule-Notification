@@ -18,6 +18,12 @@ def getMenuComponents(thisChannelID):
     return [
         ActionRow(
             Button(
+                label="ตารางเรียน",
+                custom_id="scheButton",
+                style=ButtonStyle.gray,
+                emoji="📅",
+                disabled=editDelDisable),
+            Button(
                 label="เพิ่มรายวิชา/เวลา",
                 custom_id="addButton",
                 style=ButtonStyle.green,
@@ -51,12 +57,12 @@ def getMenuComponents(thisChannelID):
                 custom_id="reloadButton",
                 style=ButtonStyle.blue,
                 emoji="🔁"),
-            Button(
-                label="ตรวจสอบเวอร์ชั่น",
-                custom_id="checkVersion",
-                style=ButtonStyle.gray,
-                emoji="⏫",
-                disabled=True),
+            # Button(
+            #     label="ตรวจสอบเวอร์ชั่น",
+            #     custom_id="checkVersion",
+            #     style=ButtonStyle.gray,
+            #     emoji="⏫",
+            #     disabled=True),
             Button(
                 label="เริ่มต้นการทำงานใหม่",
                 custom_id="FreloadButton",

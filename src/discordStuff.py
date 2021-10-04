@@ -57,8 +57,10 @@ async def loopTask(bot):
                 name="กำลังรีโหลดวันอัตโนมัติ...", type=ActivityType.playing),
                 status=Status.dnd)
             cId = dData.popCReload()
-            dData.setDynaDay(cId, (timeNow.tm_wday+1) % 7)
             dData.reduceVacation(cId)
+            if dData.getVacation(cId) == 0:
+                dData.setDynaDay(cId, (timeNow.tm_wday+1) % 7)
+
             if dData.getState(cId) == "idle":
                 await dFlow.callFlow("justReload", bot, cId)
 
@@ -78,7 +80,8 @@ async def loopTask(bot):
                 name="กำลังรีโหลดวิชาอัตโนมัติ...", type=ActivityType.playing),
                 status=Status.dnd)
             cId = dData.popSReload()
-            dData.setDynaTime(cId, hashedTimeFake)
+            if dData.getVacation(cId) == 0:
+                dData.setDynaTime(cId, hashedTimeFake)
             if dData.getState(cId) == "idle":
                 await dFlow.callFlow("justReload", bot, cId)
 
@@ -214,7 +217,8 @@ async def on_button_click(inter: interaction.Interaction):
 
     if thisButtonId == "deleteChanButton":
         await dFlow.callFlow("deleteChan", bot, thisChannelID)
-
+    elif thisButtonId == "delChan_Bye":
+        await dFlow.callFlow("byebye", bot, thisChannelID)
     elif thisButtonId == "reloadButton" and curState == "idle":
         await dFlow.callFlow("justReload", bot, thisChannelID)
 
@@ -223,6 +227,10 @@ async def on_button_click(inter: interaction.Interaction):
 
     elif thisButtonId == "backToMenu":
         await dFlow.callFlow("backToIdle", bot, thisChannelID)
+
+    elif thisButtonId == "scheButton" and curState == "idle":
+        await dFlow.callFlow("Sche_call", bot, thisChannelID)
+
     elif thisButtonId == "addButton" and curState == "idle":
         await dFlow.callFlow("Add_SelSub", bot, thisChannelID)
 
