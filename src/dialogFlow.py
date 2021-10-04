@@ -160,7 +160,7 @@ async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
             dData.setState(thisChannelID, "delChan_Con")
             pKey = dData.makeNewKey(thisChannelID) + ":"
             thisEmbed = Embed(title="สิ่งที่จะหายไป",
-                              description="ห า ย ไ ป", colour=Color.dark_red()),
+                              description="ห า ย ไ ป", colour=Color.dark_red())
             thisEmbed.add_field(
                 name="ข้อมูลตาราง", value="ตารางจะหายไปทั้งหมด และหากสร้างใหม่ ข้อมูลเก่าจะไม่กู้คืน(กรอกใหม่)", inline=False)
             thisEmbed.add_field(name="การตั้งค่า",
@@ -179,7 +179,9 @@ async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
         else:
             await thisChannel.send("เ ป็ น ไ ป ไ ม่ ไ ด้")
     elif idFlow == "byebye":
+        dData.makeNewKey()
         await doDeleteLastCMDMessage(bot, thisChannelID)
+        await delAllPrevMess(bot, thisChannelID)
         dData.removeID(thisChannelID)
         sData.delAllTime(thisChannelID)
         await thisChannel.send(":boom:**ลบแชลเนลเรียบร้อย**:boom:\nหวังว่าจะได้ให้บริการอีกครั้ง *(ซึม...)*")

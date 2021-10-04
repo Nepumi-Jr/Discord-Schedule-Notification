@@ -210,181 +210,182 @@ async def on_button_click(inter: interaction.Interaction):
     thisButtonId = inter.custom_id
     curState = dData.getState(thisChannelID)
     curChan = bot.get_channel(thisChannelID)
+    if dData.getStateKey(thisChannelID) != 0:
+        pKey = dData.getStateKey(thisChannelID) + ":"
+        if thisButtonId.startswith(pKey):
+            thisButtonId = thisButtonId[6:]
 
-    pKey = dData.getStateKey(thisChannelID) + ":"
-    if thisButtonId.startswith(pKey):
-        thisButtonId = thisButtonId[6:]
+        if thisButtonId == "deleteChanButton":
+            await dFlow.callFlow("deleteChan", bot, thisChannelID)
+        elif thisButtonId == "delChan_Bye":
+            await dFlow.callFlow("byebye", bot, thisChannelID)
+        elif thisButtonId == "reloadButton" and curState == "idle":
+            await dFlow.callFlow("justReload", bot, thisChannelID)
 
-    if thisButtonId == "deleteChanButton":
-        await dFlow.callFlow("deleteChan", bot, thisChannelID)
-    elif thisButtonId == "delChan_Bye":
-        await dFlow.callFlow("byebye", bot, thisChannelID)
-    elif thisButtonId == "reloadButton" and curState == "idle":
-        await dFlow.callFlow("justReload", bot, thisChannelID)
+        elif thisButtonId == "FreloadButton":
+            await dFlow.callFlow("forceReload", bot, thisChannelID)
 
-    elif thisButtonId == "FreloadButton":
-        await dFlow.callFlow("forceReload", bot, thisChannelID)
-
-    elif thisButtonId == "backToMenu":
-        await dFlow.callFlow("backToIdle", bot, thisChannelID)
-
-    elif thisButtonId == "scheButton" and curState == "idle":
-        await dFlow.callFlow("Sche_call", bot, thisChannelID)
-
-    elif thisButtonId == "addButton" and curState == "idle":
-        await dFlow.callFlow("Add_SelSub", bot, thisChannelID)
-
-    elif thisButtonId.startswith("add_sub_") and curState == "Add_SubCon":
-        if thisButtonId.endswith("OK"):
-            await dFlow.callFlow("Add_AllTime", bot, thisChannelID)
-        elif thisButtonId.endswith("editSub"):
-            await dFlow.callFlow("Add_Sub2", bot, thisChannelID)
-        else:
-            await dFlow.callFlow("Add_LinkBP", bot, thisChannelID)
-    elif thisButtonId.startswith("add_time_") and curState == "Add_AllTime":
-        if thisButtonId.endswith("OK"):
+        elif thisButtonId == "backToMenu":
             await dFlow.callFlow("backToIdle", bot, thisChannelID)
-        elif thisButtonId.endswith("add"):
-            await dFlow.callFlow("Add_NewDay", bot, thisChannelID)
 
-    elif thisButtonId.startswith("add_NewDay_") and curState == "Add_NewDay":
-        res = int(thisButtonId[11:])
-        await dFlow.callFlow("Add_NewTime", bot, thisChannelID, res)
+        elif thisButtonId == "scheButton" and curState == "idle":
+            await dFlow.callFlow("Sche_call", bot, thisChannelID)
 
-    elif thisButtonId.startswith("add_newTimeCon_") and curState == "Add_NewTimeCon":
-        if thisButtonId.endswith("OK"):
-            # Insert Time
-            temp = dData.getTemp(thisChannelID)
-            sData.insertOfUser(
-                thisChannelID, temp[2]*(24*12)+temp[3], temp[0], temp[1])
+        elif thisButtonId == "addButton" and curState == "idle":
+            await dFlow.callFlow("Add_SelSub", bot, thisChannelID)
 
-            await dFlow.callFlow("Add_AllTime", bot, thisChannelID)
-        else:
-            await dFlow.callFlow("Add_NewDay", bot, thisChannelID)
-
-    elif thisButtonId == "editButton" and curState == "idle":
-        await dFlow.callFlow("Edi_SelSub", bot, thisChannelID)
-    elif thisButtonId.startswith("edit_sub_") and curState == "Edi_Sub":
-        if thisButtonId.endswith("subj"):
-            await dFlow.callFlow("Edi_ChaSub", bot, thisChannelID)
-        elif thisButtonId.endswith("link"):
-            await dFlow.callFlow("Edi_ChaLink", bot, thisChannelID)
-        else:
-            await dFlow.callFlow("Edi_ChaTime", bot, thisChannelID)
-    elif thisButtonId == "edit_chaTimSub" and curState == "Edi_ChaTime":
-        await dFlow.callFlow("Edi_Sub", bot, thisChannelID)
-
-    elif thisButtonId.startswith("edi_chaTimeDay_") and curState == "Edi_ChaTimeDay":
-        res = int(thisButtonId[15:])
-        dData.setTempInd(thisChannelID, 3, res)
-        await dFlow.callFlow("Edi_ChaTimeTime", bot, thisChannelID)
-
-    # delButton
-    elif thisButtonId == "delButton" and curState == "idle":
-        await dFlow.callFlow("Rem_SelSub", bot, thisChannelID)
-
-    elif thisButtonId.startswith("rem_allSubCon_") and curState == "Rem_AllSubCon":
-        if thisButtonId.endswith("Remove"):
-            sData.delAllTime(thisChannelID)
-            await curChan.send("💥ลบเรียบร้อยแล้ว...")
-            await dFlow.callFlow("backToIdle", bot, thisChannelID)
-        else:
-            await dFlow.callFlow("Rem_SelSub", bot, thisChannelID)
-
-    elif thisButtonId.startswith("rem_sub_") and curState == "Rem_Sub":
-        if thisButtonId.endswith("back"):
-            await dFlow.callFlow("Rem_SelSub", bot, thisChannelID)
-        elif thisButtonId.endswith("subj"):
-            await dFlow.callFlow("Rem_SubCon", bot, thisChannelID)
-        else:
-            await dFlow.callFlow("Rem_SelTimeSub", bot, thisChannelID)
-
-    elif thisButtonId.startswith("rem_subCon_") and curState == "Rem_SubCon":
-        if thisButtonId.endswith("Remove"):
-            thisSub = dData.getTempInd(thisChannelID, 0)
-            sData.delSubject(thisChannelID, thisSub)
-            await curChan.send(f"💥ลบวิชา `{thisSub}` แล้ว")
-            if sData.isExistId(thisChannelID):
-                await dFlow.callFlow("Rem_SelSub", bot, thisChannelID)
+        elif thisButtonId.startswith("add_sub_") and curState == "Add_SubCon":
+            if thisButtonId.endswith("OK"):
+                await dFlow.callFlow("Add_AllTime", bot, thisChannelID)
+            elif thisButtonId.endswith("editSub"):
+                await dFlow.callFlow("Add_Sub2", bot, thisChannelID)
             else:
+                await dFlow.callFlow("Add_LinkBP", bot, thisChannelID)
+        elif thisButtonId.startswith("add_time_") and curState == "Add_AllTime":
+            if thisButtonId.endswith("OK"):
                 await dFlow.callFlow("backToIdle", bot, thisChannelID)
-        else:
+            elif thisButtonId.endswith("add"):
+                await dFlow.callFlow("Add_NewDay", bot, thisChannelID)
+
+        elif thisButtonId.startswith("add_NewDay_") and curState == "Add_NewDay":
+            res = int(thisButtonId[11:])
+            await dFlow.callFlow("Add_NewTime", bot, thisChannelID, res)
+
+        elif thisButtonId.startswith("add_newTimeCon_") and curState == "Add_NewTimeCon":
+            if thisButtonId.endswith("OK"):
+                # Insert Time
+                temp = dData.getTemp(thisChannelID)
+                sData.insertOfUser(
+                    thisChannelID, temp[2]*(24*12)+temp[3], temp[0], temp[1])
+
+                await dFlow.callFlow("Add_AllTime", bot, thisChannelID)
+            else:
+                await dFlow.callFlow("Add_NewDay", bot, thisChannelID)
+
+        elif thisButtonId == "editButton" and curState == "idle":
+            await dFlow.callFlow("Edi_SelSub", bot, thisChannelID)
+        elif thisButtonId.startswith("edit_sub_") and curState == "Edi_Sub":
+            if thisButtonId.endswith("subj"):
+                await dFlow.callFlow("Edi_ChaSub", bot, thisChannelID)
+            elif thisButtonId.endswith("link"):
+                await dFlow.callFlow("Edi_ChaLink", bot, thisChannelID)
+            else:
+                await dFlow.callFlow("Edi_ChaTime", bot, thisChannelID)
+        elif thisButtonId == "edit_chaTimSub" and curState == "Edi_ChaTime":
+            await dFlow.callFlow("Edi_Sub", bot, thisChannelID)
+
+        elif thisButtonId.startswith("edi_chaTimeDay_") and curState == "Edi_ChaTimeDay":
+            res = int(thisButtonId[15:])
+            dData.setTempInd(thisChannelID, 3, res)
+            await dFlow.callFlow("Edi_ChaTimeTime", bot, thisChannelID)
+
+        # delButton
+        elif thisButtonId == "delButton" and curState == "idle":
+            await dFlow.callFlow("Rem_SelSub", bot, thisChannelID)
+
+        elif thisButtonId.startswith("rem_allSubCon_") and curState == "Rem_AllSubCon":
+            if thisButtonId.endswith("Remove"):
+                sData.delAllTime(thisChannelID)
+                await curChan.send("💥ลบเรียบร้อยแล้ว...")
+                await dFlow.callFlow("backToIdle", bot, thisChannelID)
+            else:
+                await dFlow.callFlow("Rem_SelSub", bot, thisChannelID)
+
+        elif thisButtonId.startswith("rem_sub_") and curState == "Rem_Sub":
+            if thisButtonId.endswith("back"):
+                await dFlow.callFlow("Rem_SelSub", bot, thisChannelID)
+            elif thisButtonId.endswith("subj"):
+                await dFlow.callFlow("Rem_SubCon", bot, thisChannelID)
+            else:
+                await dFlow.callFlow("Rem_SelTimeSub", bot, thisChannelID)
+
+        elif thisButtonId.startswith("rem_subCon_") and curState == "Rem_SubCon":
+            if thisButtonId.endswith("Remove"):
+                thisSub = dData.getTempInd(thisChannelID, 0)
+                sData.delSubject(thisChannelID, thisSub)
+                await curChan.send(f"💥ลบวิชา `{thisSub}` แล้ว")
+                if sData.isExistId(thisChannelID):
+                    await dFlow.callFlow("Rem_SelSub", bot, thisChannelID)
+                else:
+                    await dFlow.callFlow("backToIdle", bot, thisChannelID)
+            else:
+                await dFlow.callFlow("Rem_Sub", bot, thisChannelID)
+
+        elif thisButtonId == "rem_selTimeSub_back":
             await dFlow.callFlow("Rem_Sub", bot, thisChannelID)
 
-    elif thisButtonId == "rem_selTimeSub_back":
-        await dFlow.callFlow("Rem_Sub", bot, thisChannelID)
+        elif thisButtonId == "toggleNoToday" and curState == "idle":
+            await dFlow.callFlow("tog_vaca", bot, thisChannelID,
+                                 (dData.getVacation(thisChannelID) == 0))
 
-    elif thisButtonId == "toggleNoToday" and curState == "idle":
-        await dFlow.callFlow("tog_vaca", bot, thisChannelID,
-                             (dData.getVacation(thisChannelID) == 0))
+        elif thisButtonId == "togNoti" and curState == "idle":
+            await dFlow.callFlow("tog_noti", bot, thisChannelID)
 
-    elif thisButtonId == "togNoti" and curState == "idle":
-        await dFlow.callFlow("tog_noti", bot, thisChannelID)
-
-    try:
-        await inter.respond(type=6)
-    except:
-        pass
+        try:
+            await inter.respond(type=6)
+        except:
+            pass
 
 
 @ bot.event
 async def on_select_option(inter: interaction.Interaction):
     thisChannelID = inter.channel_id
     thisButtonId = inter.custom_id
-    pKey = dData.getStateKey(thisChannelID) + ":"
-    if thisButtonId.startswith(pKey):
-        thisButtonId = thisButtonId[6:]
+    if dData.getStateKey(thisChannelID) != 0:
+        pKey = dData.getStateKey(thisChannelID) + ":"
+        if thisButtonId.startswith(pKey):
+            thisButtonId = thisButtonId[6:]
 
-    curState = dData.getState(thisChannelID)
+        curState = dData.getState(thisChannelID)
 
-    curChan = bot.get_channel(thisChannelID)
-    selecting = inter.values[0]
-    if thisButtonId == "add_SelectSubject":
-        if selecting == "!!TheNewOneeeeeeeeeeeeeee!!":
-            await dFlow.callFlow("Add_Sub", bot, thisChannelID)
-        else:
+        curChan = bot.get_channel(thisChannelID)
+        selecting = inter.values[0]
+        if thisButtonId == "add_SelectSubject":
+            if selecting == "!!TheNewOneeeeeeeeeeeeeee!!":
+                await dFlow.callFlow("Add_Sub", bot, thisChannelID)
+            else:
+                dData.setTempInd(thisChannelID, 0, selecting)
+                thisLink = sData.getLinkfromSubject(thisChannelID, selecting)
+                dData.setTempInd(thisChannelID, 1, thisLink)
+                await dFlow.callFlow("Add_AllTime", bot, thisChannelID)
+        elif thisButtonId == "edi_SelectSubject":
             dData.setTempInd(thisChannelID, 0, selecting)
             thisLink = sData.getLinkfromSubject(thisChannelID, selecting)
             dData.setTempInd(thisChannelID, 1, thisLink)
-            await dFlow.callFlow("Add_AllTime", bot, thisChannelID)
-    elif thisButtonId == "edi_SelectSubject":
-        dData.setTempInd(thisChannelID, 0, selecting)
-        thisLink = sData.getLinkfromSubject(thisChannelID, selecting)
-        dData.setTempInd(thisChannelID, 1, thisLink)
-        await dFlow.callFlow("Edi_Sub", bot, thisChannelID)
-    elif thisButtonId == "edit_chaTime":
-        dData.setTempInd(thisChannelID, 2, int(selecting))
-        await dFlow.callFlow("Edi_ChaTimeDay", bot, thisChannelID)
-    elif thisButtonId == "rem_SelectSubject":
-        if selecting == "!!RRREEEEMMMMOOvEEEEEEALL!!!":
-            await dFlow.callFlow("Rem_AllSubCon", bot, thisChannelID)
-        else:
-            dData.setTempInd(thisChannelID, 0, selecting)
-            thisLink = sData.getLinkfromSubject(thisChannelID, selecting)
-            dData.setTempInd(thisChannelID, 1, thisLink)
-            await dFlow.callFlow("Rem_Sub", bot, thisChannelID)
+            await dFlow.callFlow("Edi_Sub", bot, thisChannelID)
+        elif thisButtonId == "edit_chaTime":
+            dData.setTempInd(thisChannelID, 2, int(selecting))
+            await dFlow.callFlow("Edi_ChaTimeDay", bot, thisChannelID)
+        elif thisButtonId == "rem_SelectSubject":
+            if selecting == "!!RRREEEEMMMMOOvEEEEEEALL!!!":
+                await dFlow.callFlow("Rem_AllSubCon", bot, thisChannelID)
+            else:
+                dData.setTempInd(thisChannelID, 0, selecting)
+                thisLink = sData.getLinkfromSubject(thisChannelID, selecting)
+                dData.setTempInd(thisChannelID, 1, thisLink)
+                await dFlow.callFlow("Rem_Sub", bot, thisChannelID)
 
-    elif thisButtonId == "rem_selTimeSub_rem":
-        sData.delByTime(thisChannelID, int(selecting))
-        await curChan.send(
-            f"💥ลบ `{dUse.fromTerzTimeToStr(hashTime.hashBack(int(selecting)))}` แล้ว")
-        thisSubs = sData.getallSubjects(thisChannelID)
-        if dData.getTempInd(thisChannelID, 0) in thisSubs:
-            await dFlow.callFlow("Rem_Sub", bot, thisChannelID)
-        else:
-            await dFlow.callFlow("Rem_SelSub", bot, thisChannelID)
+        elif thisButtonId == "rem_selTimeSub_rem":
+            sData.delByTime(thisChannelID, int(selecting))
+            await curChan.send(
+                f"💥ลบ `{dUse.fromTerzTimeToStr(hashTime.hashBack(int(selecting)))}` แล้ว")
+            thisSubs = sData.getallSubjects(thisChannelID)
+            if dData.getTempInd(thisChannelID, 0) in thisSubs:
+                await dFlow.callFlow("Rem_Sub", bot, thisChannelID)
+            else:
+                await dFlow.callFlow("Rem_SelSub", bot, thisChannelID)
 
-    elif thisButtonId == "tog_vaca":
-        day = int(selecting)
-        dData.setVacation(thisChannelID, day)
-        await curChan.send(
-            f"🎉ว้าว ไม่มีเรียน {day} วัน!!")
-        await dFlow.callFlow("backToIdle", bot, thisChannelID)
+        elif thisButtonId == "tog_vaca":
+            day = int(selecting)
+            dData.setVacation(thisChannelID, day)
+            await curChan.send(
+                f"🎉ว้าว ไม่มีเรียน {day} วัน!!")
+            await dFlow.callFlow("backToIdle", bot, thisChannelID)
 
-    try:
-        await inter.respond(type=6)
-    except:
-        pass
+        try:
+            await inter.respond(type=6)
+        except:
+            pass
 
 
 def runBot():
