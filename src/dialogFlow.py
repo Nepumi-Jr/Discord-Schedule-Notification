@@ -10,7 +10,7 @@ from src.backend import hashTime
 from src import cmdUtil as util
 from src import discordComUse as dUse
 
-VERSION = "เวอร์ชั่น Beta 1.0.1 (แก้ไข 5 ต.ค. 64)"
+VERSION = "เวอร์ชั่น Beta 1.0.2 (แก้ไข 4 ต.ค. 64)"
 
 dayInThai = ["อาทิตย์", "จันทร์", "อังคาร",
              "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"]
@@ -249,7 +249,7 @@ async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
         dData.addMessageId(thisChannelID, m.id)
     elif idFlow == "Add_Sub" or idFlow == "Add_Sub2":
         await delAllPrevMess(bot, thisChannelID)
-        dData.setState(thisChannelID, "Add_Sub")
+        dData.setState(thisChannelID, idFlow)
         await thisChannel.send(":speech_balloon:กรุณาใส่ชื่อวิชาที่จะต้องการเพิ่ม (ไม่เกิน 20 ตัวอักษร)\n*ส่งมาในแชทนี้เลย*")
 
     elif idFlow == "Add_Link" or idFlow == "Add_LinkBP":
