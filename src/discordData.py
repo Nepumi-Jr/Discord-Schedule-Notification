@@ -49,6 +49,7 @@ def validData():
             serverData[f] = DEFAULT_SERVER_DATA[f]
 
     saveData()
+    saveServerData()
 
 
 def loadData():
