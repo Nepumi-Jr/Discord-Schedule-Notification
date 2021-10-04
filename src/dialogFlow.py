@@ -1,3 +1,4 @@
+from random import choice
 from discord.colour import Color
 from discord.embeds import Embed
 from discord_components import Select, Button, DiscordComponents, interaction, ActionRow, SelectOption
@@ -8,6 +9,15 @@ from src.backend import handle as sData
 from src.backend import hashTime
 from src import cmdUtil as util
 from src import discordComUse as dUse
+
+dayInThai = ["อาทิตย์", "จันทร์", "อังคาร",
+             "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"]
+dayColor = [Color.red(), Color.gold(), Color.magenta(),
+            Color.green(), Color.orange(), Color.blue(), Color.purple()]
+monthInThai = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน",
+               "พฤษภาคม ", "มิถุนายน", "กรกฎาคม", "สิงหาคม",
+               "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"]
+randomWord = ["สวัสดี วัน<day>", "วัน<day> เป็นวันที่ดีย์"]
 
 
 async def getMessage(bot, chaID, messID):
@@ -43,19 +53,88 @@ async def delAllPrevMess(bot, thisChannelID):
     dData.clearPrevMess(thisChannelID)
 
 
+async def messageOfContent(chan):
+    thisChanId = chan.id
+    dyna = dData.getDyna(thisChanId)
+    if dyna == -1:
+        return None
+    elif dyna[1] == -1:
+        return None
+
+    if dyna[0] == "Day":
+        dayOfTheWeek = dyna[1]
+        thisMenuEmbed = Embed(
+            title=f"วัน{dayInThai[dayOfTheWeek]}",
+            description=f"มีทั้งหมด {sData.getNSubjectOfDay(thisChanId,dayOfTheWeek)} วิชาในวันนี้",
+            colour=dayColor[dayOfTheWeek])
+
+        datas = sData.getSubjectOfDay(thisChanId, dayOfTheWeek)
+        for d in datas:
+            thisMenuEmbed.add_field(
+                name=f"[{dUse.fromTerzTimeToStr(hashTime.hashBack(d[0]))}] {d[1][0]}", value=str(d[1][1]), inline=False)
+        await chan.send(embed=thisMenuEmbed)
+    else:
+        timeHased = dyna[1]
+        dayOfTheWeek = dData.getDayOfWeek()
+        datas = sData.getDataFromTimeUser(thisChanId, timeHased)
+        thisMenuEmbed = Embed(
+            title=f"{datas[0]}",
+            description=f"{dUse.fromTerzTimeToStr(hashTime.hashBack(timeHased))}",
+            colour=dayColor[dayOfTheWeek])
+        thisMenuEmbed.add_field(name="ลิ้ง", value=datas[1])
+        try:
+            await chan.send(embed=thisMenuEmbed, components=[
+                Button(
+                    label="ลิ้งเรียน",
+                    style=ButtonStyle.URL,
+                    emoji="🔗"
+                )
+            ])
+        except:
+            await chan.send(embed=thisMenuEmbed)
+
+
 async def menuCmdCommand(chan):
-    return await chan.send(":clock1:**ยินดีต้อนรับสู่การใช้งาน บอทขอลิงก์(ห้อง)เรียน**:clock1:\n \\* สามารถใช้ปุ่มด้านล่างนี้ในการควบคุมต่าง ๆ\n*แนะนำ : ไม่ควรใช้ห้องแชทนี้ในการสนทนาปกติ*",
-                           components=dUse.getMenuComponents(chan.id))
+    thisChanId = chan.id
+    dayOfWeek = dData.getDayOfWeek()
+    if dayOfWeek == -1:
+        return await chan.send(":clock1:**ยินดีต้อนรับสู่การใช้งาน บอทขอลิงก์(ห้อง)เรียน**:clock1:\n \\* สามารถใช้ปุ่มด้านล่างนี้ในการควบคุมต่าง ๆ\n*แนะนำ : ไม่ควรใช้ห้องแชทนี้ในการสนทนาปกติ*",
+                               components=dUse.getMenuComponents(thisChanId))
+    else:
+        date = dData.getDMY()
+        thisMenuEmbed = Embed(
+            title=choice(randomWord).replace("<day>", dayInThai[dayOfWeek]),
+            description=f"วันที่ {date[0]} {monthInThai[date[1]-1]} ปี {date[2]+543}",
+            colour=dayColor[dayOfWeek])
+        thisMenuEmbed.add_field(name="📚 จำนวนวิชาที่อยู่ในระบบ",
+                                value=f"ทั้งหมด {sData.getNSubject(thisChanId)} วิชา")
+        thisMenuEmbed.add_field(name="📕 จำนวนวิชาในวันนี้",
+                                value=f"มี {sData.getNSubjectOfDay(thisChanId,dayOfWeek)} วิชา")
+        thisMenuEmbed.add_field(name="💬 โหมดการแจ้งเตือน", value=dData.isNotiDay(
+            thisChanId) and "เตือนทุก ๆ วัน" or "เตือนทุก ๆ วิชา")
+        thisMenuEmbed.add_field(name="🏖 หยุดเรียนหรือไม่", value=dData.getVacation(
+            thisChanId) == 0 and "เรียนตามปกติ" or f"วู้ว หยุดอีก {dData.getVacation(thisChanId)} วัน")
+        return await chan.send(":clock1:**ยินดีต้อนรับสู่การใช้งาน บอทขอลิงก์(ห้อง)เรียน**:clock1:\n \\* สามารถใช้ปุ่มด้านล่างนี้ในการควบคุมต่าง ๆ\n*แนะนำ : ไม่ควรใช้ห้องแชทนี้ในการสนทนาปกติ*",
+                               embed=thisMenuEmbed,
+                               components=dUse.getMenuComponents(thisChanId))
 
 
 async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
-    thisChannel = bot.get_channel(thisChannelID)
+
+    thisChannel = await bot.fetch_channel(thisChannelID)
     if idFlow == "callSchedule":
-        thisMes = await menuCmdCommand(thisChannel)
         if dData.isExistID(thisChannelID):
+            # Like reset
+            dData.setState(thisChannelID, "idle")
+            dData.makeNewKey(thisChannelID)
+            dData.setTemp(thisChannelID, [])
             await doDeleteLastCMDMessage(bot, thisChannelID)
+            await messageOfContent(thisChannel)
+            thisMes = await menuCmdCommand(thisChannel)
             dData.setMessID(thisChannelID, thisMes.id)
         else:
+            await messageOfContent(thisChannel)
+            thisMes = await menuCmdCommand(thisChannel)
             dData.createNewID(thisChannelID, thisMes.id)
     elif idFlow == "deleteChan":
         if dData.isExistID(thisChannelID):
@@ -67,14 +146,17 @@ async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
             await thisChannel.send("เ ป็ น ไ ป ไ ม่ ไ ด้")
     elif idFlow == "justReload":
         await doDeleteLastCMDMessage(bot, thisChannelID)
+        await messageOfContent(thisChannel)
         thisMes = await menuCmdCommand(thisChannel)
         dData.setMessID(thisChannelID, thisMes.id)
     elif idFlow == "forceReload":
         await thisChannel.send("-"*50)
         dData.setState(thisChannelID, "idle")
+        dData.makeNewKey(thisChannelID)
         dData.setTemp(thisChannelID, [])
         await thisChannel.send("🔁เริ่มต้นระบบใหม่🔁")
         await doDeleteLastCMDMessage(bot, thisChannelID)
+        await messageOfContent(thisChannel)
         thisMes = await menuCmdCommand(thisChannel)
         dData.setMessID(thisChannelID, thisMes.id)
     elif idFlow == "backToIdle":
@@ -83,6 +165,7 @@ async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
         dData.setTemp(thisChannelID, [])
         dData.makeNewKey(thisChannelID)
         await doDeleteLastCMDMessage(bot, thisChannelID)
+        await messageOfContent(thisChannel)
         thisMes = await menuCmdCommand(thisChannel)
         dData.setMessID(thisChannelID, thisMes.id)
 
@@ -94,7 +177,8 @@ async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
         m = await thisChannel.send("**+ เพิ่มรายวิชา / เวลา +**\nกรุณาเลือกวิชาที่จะเพิ่มเวลาหรือเพิ่มวิชา",
                                    components=[
                                        dUse.makeSelectSubject(
-                                           thisChannelID, pKey+"add_SelectSubject", True),
+                                           thisChannelID, pKey+"add_SelectSubject",
+                                           [("+ เพิ่มวิชาใหม่", "!!TheNewOneeeeeeeeeeeeeee!!", "➕")]),
                                        dUse.backToMenu(pKey)
                                    ])
         dData.addMessageId(thisChannelID, m.id)
@@ -238,7 +322,7 @@ async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
         m = await thisChannel.send("**🔧 แก้ไขรายวิชา / เวลา +**\nกรุณาเลือกวิชาที่จะแก้ไข",
                                    components=[
                                        dUse.makeSelectSubject(
-                                           thisChannelID, pKey+"edi_SelectSubject", True),
+                                           thisChannelID, pKey+"edi_SelectSubject"),
                                        dUse.backToMenu(pKey)
                                    ])
         dData.addMessageId(thisChannelID, m.id)
@@ -343,3 +427,145 @@ async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
             "* - ใส่เป็นเวลา `xx:xx` มาที่แชทนี้เลย*\n" +
             "* - พยายามให้ตั้งก่อนเวลาเรียนประมาณ 5-10 นาที...*\n" +
             "* - เวลาจะรับได้แค่เวลาที่หารด้วย 5 ลงตัว เช่น 0:00 0:05 0:10 เป็นต้น*")
+
+    elif idFlow == "Rem_SelSub":
+        dData.setState(thisChannelID, "Rem_SelSub")
+        await delAllPrevMess(bot, thisChannelID)
+        pKey = dData.makeNewKey(thisChannelID) + ":"
+        m = await thisChannel.send("**✂ ลบรายวิชา / เวลา +**\nกรุณาเลือกวิชาที่จะแก้ไขโดยการลบ",
+                                   components=[
+                                       dUse.makeSelectSubject(
+                                           thisChannelID, pKey+"rem_SelectSubject",
+                                           [("ลบทุกวิชา!!!!", "!!RRREEEEMMMMOOvEEEEEEALL!!!", "💥")]),
+                                       dUse.backToMenu(pKey)
+                                   ])
+        dData.addMessageId(thisChannelID, m.id)
+
+    elif idFlow == "Rem_AllSubCon":
+        dData.setState(thisChannelID, "Rem_AllSubCon")
+        await delAllPrevMess(bot, thisChannelID)
+        pKey = dData.makeNewKey(thisChannelID) + ":"
+        m = await thisChannel.send("**💥💥คุณกำลังจะลบทุก ๆ วิชา💥💥**\nหากลบแล้ว จะไม่สามารถกู้คืนได้ แน่ใจแล้วหรือไม่",
+                                   components=[ActionRow(
+                                       Button(
+                                           label="แน่ใจแล้วที่จะลบ!!!",
+                                           custom_id=pKey + "rem_allSubCon_Remove",
+                                           style=ButtonStyle.red,
+                                           emoji="💥"),
+                                       dUse.anyButton(pKey + "rem_allSubCon_cancel",
+                                                      "ยังก่อน ยังไม่ลบ", "↩")
+                                   )])
+        dData.addMessageId(thisChannelID, m.id)
+
+    elif idFlow == "Rem_Sub":
+        await delAllPrevMess(bot, thisChannelID)
+        dData.setState(thisChannelID, "Rem_Sub")
+        newTemp = dData.getTemp(thisChannelID)
+        pKey = dData.makeNewKey(thisChannelID) + ":"
+        thisEm = dUse.getEmbedAllTimeFromSubject(
+            thisChannelID, newTemp[0], newTemp[1])
+        m = await thisChannel.send(
+            f"**ต้องการลบในส่วนไหน...**",
+            embed=thisEm,
+            components=[ActionRow(
+                dUse.anyButton(pKey+"rem_sub_back", "ย้อนกลับ", "↩"),
+                dUse.anyButton(pKey+"rem_sub_subj", "ลบวิชา", "📕"),
+                dUse.anyButton(pKey+"rem_sub_Time", "ลบเวลา", "🕞"),
+            )])
+        dData.addMessageId(thisChannelID, m.id)
+
+    elif idFlow == "Rem_SubCon":
+        dData.setState(thisChannelID, "Rem_SubCon")
+        await delAllPrevMess(bot, thisChannelID)
+        pKey = dData.makeNewKey(thisChannelID) + ":"
+        thisSub = dData.getTempInd(thisChannelID, 0)
+        m = await thisChannel.send(f"**💥คุณกำลังจะลบวิชา `{thisSub}`💥**\nหากลบแล้ว จะไม่สามารถกู้คืนได้ แน่ใจแล้วหรือไม่",
+                                   components=[ActionRow(Button(
+                                       label="ลบ!!",
+                                       custom_id=pKey + "rem_subCon_Remove",
+                                       style=ButtonStyle.red,
+                                       emoji="💥"),
+                                       dUse.anyButton(pKey + "rem_subCon_cancel",
+                                                      "ยังก่อน ยังไม่ลบ", "↩")
+                                   )
+                                   ])
+        dData.addMessageId(thisChannelID, m.id)
+
+    elif idFlow == "Rem_SelTimeSub":
+        await delAllPrevMess(bot, thisChannelID)
+        dData.setState(thisChannelID, "Rem_SelTimeSub")
+        curSubject = dData.getTempInd(thisChannelID, 0)
+        allTimes = sData.getTimesfromSubject(thisChannelID, curSubject, False)
+        pKey = dData.makeNewKey(thisChannelID) + ":"
+        thisOptions = []
+        for tim in allTimes:
+            timeText = hashTime.hashBack(tim)
+            thisOptions.append(SelectOption(
+                label=f"{dUse.fromTerzTimeToStr(timeText)}", value=tim))
+
+        m = await thisChannel.send(
+            f"**กรุณาเลือกเวลาที่ต้องการลบ...**\n*หากเลือกแล้ว จะทำการ**ลบทันที!!!!***",
+            embed=dUse.getEmbedAllTimeFromSubject(
+                thisChannelID, curSubject),
+            components=[ActionRow(
+                dUse.anyButton(pKey+"rem_selTimeSub_back",
+                               "ย้อนกลับไปที่เมนูวิชา", "↩"),
+
+            ), Select(
+                placeholder="กรุณาเลือกเวลาที่จะลบ",
+                options=thisOptions,
+                custom_id=pKey+"rem_selTimeSub_rem"
+            )])
+        dData.addMessageId(thisChannelID, m.id)
+
+    elif idFlow == "tog_vaca":
+        isVaca = dlcc
+        dData.setState(thisChannelID, "Tog_vaca")
+        pKey = dData.makeNewKey(thisChannelID) + ":"
+
+        if isVaca:
+            m = await thisChannel.send("🎉เย่ ๆ ไม่มีเรียน\nแล้วหยุดกี่วัน",
+                                       components=[
+                                           dUse.backToMenu(pKey),
+                                           Select(
+                                               placeholder="กรุณาเลือกจำนวนวัน",
+                                               options=[
+                                                   SelectOption(
+                                                       label="1 วัน", value="1"),
+                                                   SelectOption(
+                                                       label="2 วัน", value="2"),
+                                                   SelectOption(
+                                                       label="3 วัน", value="3"),
+                                                   SelectOption(
+                                                       label="4 วัน", value="4"),
+                                                   SelectOption(
+                                                       label="5 วัน", value="5"),
+                                                   SelectOption(
+                                                       label="6 วัน", value="6"),
+                                                   SelectOption(
+                                                       label="1 สัปดาห์", value="7"),
+                                                   SelectOption(
+                                                       label="2 สัปดาห์", value="14"),
+                                                   SelectOption(
+                                                       label="3 สัปดาห์", value="21"),
+                                                   SelectOption(
+                                                       label="1 เดือน", value="30"),
+                                                   SelectOption(
+                                                       label="2 เดือน", value="60"),
+                                                   SelectOption(
+                                                       label="3 เดือน", value="90"),
+                                               ],
+                                               custom_id=pKey+"tog_vaca"
+                                           )
+                                       ])
+            dData.addMessageId(thisChannelID, m.id)
+        else:
+            await thisChannel.send("💧กลับมาเรียนเหมือนเดิม")
+            dData.setVacation(thisChannelID, 0)
+            await callFlow("backToIdle", bot, thisChannelID)
+
+    elif idFlow == "tog_noti":
+        newMode = dData.toggleNotiMode(thisChannelID)
+        expP = newMode == "Subject" and "แบบรายวิชา" or "วัน"
+        await thisChannel.send(f"💬เปลี่ยนจากการแจ้งเตือนเป็น `{expP}`")
+        await callFlow("backToIdle", bot, thisChannelID)

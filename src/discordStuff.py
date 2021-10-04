@@ -3,10 +3,12 @@ import os
 import configparser
 from discord.ext import commands
 import discord
+from discord import Status
 from discord.activity import Activity, ActivityType
 from discord_components import Select, Button, DiscordComponents, interaction, ActionRow, SelectOption
 from discord_components.component import ButtonStyle
-
+import asyncio
+import time
 
 from src.printUtil import *
 from src.cmdUtil import *
@@ -20,26 +22,96 @@ bot = commands.Bot(command_prefix="!")
 DiscordComponents(bot)
 
 
-@bot.event
+thisToken = "???"
+
+# ? read Config
+if not os.path.exists("BigConfig.ini"):
+    printError("BigConfig", "BigConfig.ini not found :(")
+    exit(1)
+thisConfig = configparser.ConfigParser()
+thisConfig.read("BigConfig.ini")
+
+thisToken = thisConfig["KeyToken"]["botToken"].strip()
+
+
+async def loopTask(bot):
+    isNormalAc = True
+    newDayTime = (int(thisConfig["bot"]["TimeOfNewDay"].strip()), 0)
+    #newDayTime = (22, 12)
+    while True:
+        # local not global
+        epochTimeNow = int(time.time()) + \
+            int(thisConfig["bot"]["GMT"].strip())*60*60
+        timeNow = time.gmtime(epochTimeNow)
+        if (timeNow.tm_hour >= newDayTime[0] and timeNow.tm_min >= newDayTime[1]) and \
+                ((timeNow.tm_wday+1) % 7) != dData.getDayOfWeek():
+            dData.setDayOfWeek((timeNow.tm_wday+1) % 7)
+            dData.setDMY(timeNow.tm_mday, timeNow.tm_mon, timeNow.tm_year)
+            dData.addAllServerCReload()
+
+        # ? Reload of the day
+        while not dData.isCReloadEmpty():
+
+            isNormalAc = False
+            await bot.change_presence(activity=Activity(
+                name="กำลังรีโหลดวันอัตโนมัติ...", type=ActivityType.playing),
+                status=Status.dnd)
+            cId = dData.popCReload()
+            dData.setDynaDay(cId, (timeNow.tm_wday+1) % 7)
+            dData.reduceVacation(cId)
+            if dData.getState(cId) == "idle":
+                await dFlow.callFlow("justReload", bot, cId)
+
+        hashedTime = hashTime.hash(epochTimeNow)
+        hashedTimeFake = hashedTime + 6
+        if hashedTimeFake != dData.getTimeOfWeek():
+            print("Push new!!!")
+            dData.setTimeOfWeek(hashedTimeFake)
+            datas = sData.getTimeSubject(hashedTimeFake)
+            if datas:
+                for d in datas:
+                    dData.pushServerSReload(d[0])
+
+        # ? Reload of Subject
+        while not dData.isSReloadEmpty():
+            print(dData.serverData["timeReload"],
+                  len(dData.serverData["timeReload"]))
+            isNormalAc = False
+            await bot.change_presence(activity=Activity(
+                name="กำลังรีโหลดวิชาอัตโนมัติ...", type=ActivityType.playing),
+                status=Status.dnd)
+            cId = dData.popSReload()
+            print(dData.serverData["timeReload"],
+                  len(dData.serverData["timeReload"]))
+            dData.setDynaTime(cId, hashedTimeFake)
+            if dData.getState(cId) == "idle":
+                await dFlow.callFlow("justReload", bot, cId)
+
+        if not isNormalAc:
+            await bot.change_presence(activity=Activity(
+                name="เริ่มต้นการใช้งาน โดยการพิมพ์ !+schedule ในช่องแชทที่ต้องการ (แชทส่วนตัวก็ได้)", type=ActivityType.playing),
+                status=Status.online)
+            isNormalAc = True
+        await asyncio.sleep(2)
+
+
+@ bot.event
 async def on_ready():
     printSuggest("Discord", "Logged in as")
     print(bot.user.name)
     print(bot.user.id)
     print('------')
 
-    botActivity = Activity(
-        name="เริ่มต้นการใช้งาน โดยการพิมพ์ !+schedule ในช่องแชทที่ต้องการ (แชทส่วนตัวก็ได้)", type=ActivityType.playing)
-    await bot.change_presence(activity=botActivity)
     # TODO : Create Task
-    # client.loop.create_task(cmd.botStatus(client))
+    bot.loop.create_task(loopTask(bot))
 
 
-@bot.event
+@ bot.event
 async def on_guild_join(guild):
     await guild.system_channel.send("กราบสวัสดีพ่อแม่พี่น้องครับ")
 
 
-@bot.event
+@ bot.event
 async def on_message(mes: discord.message.Message):
 
     if mes.author.id == bot.user.id:
@@ -134,7 +206,7 @@ async def on_message(mes: discord.message.Message):
             await dFlow.callFlow("Edi_Sub", bot, thisChannelID)
 
 
-@bot.event
+@ bot.event
 async def on_button_click(inter: interaction.Interaction):
     thisChannelID = inter.channel_id
     thisButtonId = inter.custom_id
@@ -204,10 +276,55 @@ async def on_button_click(inter: interaction.Interaction):
         dData.setTempInd(thisChannelID, 3, res)
         await dFlow.callFlow("Edi_ChaTimeTime", bot, thisChannelID)
 
-    await inter.respond(type=6)
+    # delButton
+    elif thisButtonId == "delButton" and curState == "idle":
+        await dFlow.callFlow("Rem_SelSub", bot, thisChannelID)
+
+    elif thisButtonId.startswith("rem_allSubCon_") and curState == "Rem_AllSubCon":
+        if thisButtonId.endswith("Remove"):
+            sData.delAllTime(thisChannelID)
+            await curChan.send("💥ลบเรียบร้อยแล้ว...")
+            await dFlow.callFlow("backToIdle", bot, thisChannelID)
+        else:
+            await dFlow.callFlow("Rem_SelSub", bot, thisChannelID)
+
+    elif thisButtonId.startswith("rem_sub_") and curState == "Rem_Sub":
+        if thisButtonId.endswith("back"):
+            await dFlow.callFlow("Rem_SelSub", bot, thisChannelID)
+        elif thisButtonId.endswith("subj"):
+            await dFlow.callFlow("Rem_SubCon", bot, thisChannelID)
+        else:
+            await dFlow.callFlow("Rem_SelTimeSub", bot, thisChannelID)
+
+    elif thisButtonId.startswith("rem_subCon_") and curState == "Rem_SubCon":
+        if thisButtonId.endswith("Remove"):
+            thisSub = dData.getTempInd(thisChannelID, 0)
+            sData.delSubject(thisChannelID, thisSub)
+            await curChan.send(f"💥ลบวิชา `{thisSub}` แล้ว")
+            if sData.isExistId(thisChannelID):
+                await dFlow.callFlow("Rem_SelSub", bot, thisChannelID)
+            else:
+                await dFlow.callFlow("backToIdle", bot, thisChannelID)
+        else:
+            await dFlow.callFlow("Rem_Sub", bot, thisChannelID)
+
+    elif thisButtonId == "rem_selTimeSub_back":
+        await dFlow.callFlow("Rem_Sub", bot, thisChannelID)
+
+    elif thisButtonId == "toggleNoToday" and curState == "idle":
+        await dFlow.callFlow("tog_vaca", bot, thisChannelID,
+                             (dData.getVacation(thisChannelID) == 0))
+
+    elif thisButtonId == "togNoti" and curState == "idle":
+        await dFlow.callFlow("tog_noti", bot, thisChannelID)
+
+    try:
+        await inter.respond(type=6)
+    except:
+        pass
 
 
-@bot.event
+@ bot.event
 async def on_select_option(inter: interaction.Interaction):
     thisChannelID = inter.channel_id
     thisButtonId = inter.custom_id
@@ -227,27 +344,44 @@ async def on_select_option(inter: interaction.Interaction):
             thisLink = sData.getLinkfromSubject(thisChannelID, selecting)
             dData.setTempInd(thisChannelID, 1, thisLink)
             await dFlow.callFlow("Add_AllTime", bot, thisChannelID)
-    if thisButtonId == "edi_SelectSubject":
+    elif thisButtonId == "edi_SelectSubject":
         dData.setTempInd(thisChannelID, 0, selecting)
         thisLink = sData.getLinkfromSubject(thisChannelID, selecting)
         dData.setTempInd(thisChannelID, 1, thisLink)
         await dFlow.callFlow("Edi_Sub", bot, thisChannelID)
-    if thisButtonId == "edit_chaTime":
+    elif thisButtonId == "edit_chaTime":
         dData.setTempInd(thisChannelID, 2, int(selecting))
         await dFlow.callFlow("Edi_ChaTimeDay", bot, thisChannelID)
-    await inter.respond(type=6)
+    elif thisButtonId == "rem_SelectSubject":
+        if selecting == "!!RRREEEEMMMMOOvEEEEEEALL!!!":
+            await dFlow.callFlow("Rem_AllSubCon", bot, thisChannelID)
+        else:
+            dData.setTempInd(thisChannelID, 0, selecting)
+            thisLink = sData.getLinkfromSubject(thisChannelID, selecting)
+            dData.setTempInd(thisChannelID, 1, thisLink)
+            await dFlow.callFlow("Rem_Sub", bot, thisChannelID)
 
+    elif thisButtonId == "rem_selTimeSub_rem":
+        sData.delByTime(thisChannelID, int(selecting))
+        await curChan.send(
+            f"💥ลบ `{dUse.fromTerzTimeToStr(hashTime.hashBack(int(selecting)))}` แล้ว")
+        thisSubs = sData.getallSubjects(thisChannelID)
+        if dData.getTempInd(thisChannelID, 0) in thisSubs:
+            await dFlow.callFlow("Rem_Sub", bot, thisChannelID)
+        else:
+            await dFlow.callFlow("Rem_SelSub", bot, thisChannelID)
 
-thisToken = "???"
+    elif thisButtonId == "tog_vaca":
+        day = int(selecting)
+        dData.setVacation(thisChannelID, day)
+        await curChan.send(
+            f"🎉ว้าว ไม่มีเรียน {day} วัน!!")
+        await dFlow.callFlow("backToIdle", bot, thisChannelID)
 
-# ? read Config
-if not os.path.exists("BigConfig.ini"):
-    printError("BigConfig", "BigConfig.ini not found :(")
-    exit(1)
-thisConfig = configparser.ConfigParser()
-thisConfig.read("BigConfig.ini")
-
-thisToken = thisConfig["KeyToken"]["botToken"].strip()
+    try:
+        await inter.respond(type=6)
+    except:
+        pass
 
 
 def runBot():

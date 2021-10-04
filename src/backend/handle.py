@@ -66,7 +66,7 @@ def delByTime(idUser, atTime: int, saveD=True):
 def delAllTime(idUser, saveD=True):
     global userData, timeTable
     if idUser in userData:
-        for eachTimeData in userData[idUser]["TimeData"]:
+        for eachTimeData in userData[idUser]["timeData"]:
             del timeTable[eachTimeData][idUser]
 
         del userData[idUser]
@@ -181,7 +181,7 @@ def getDesFromSubject(idUser, subject: str):
 
 def delSubject(idUser, subj, saveD=True):
 
-    thatTime = getTimesfromSubject(subj)
+    thatTime = getTimesfromSubject(idUser, subj, False)
 
     for tim in thatTime:
         delByTime(idUser, tim, False)
@@ -232,11 +232,40 @@ def changeTime(idUser, fromTime, toTime):
         saveData()
 
 
-def isExistId(idUser):
+def getNSubject(idUser):
     if idUser in userData:
-        return len(userData[idUser]["timeData"]) > 0
+        return len(userData[idUser]["timeData"])
     else:
-        return False
+        return 0
+
+
+def getSubjectOfDay(idUser, dayOfWeek):
+    if idUser in userData:
+        res = []
+        for tim in userData[idUser]["timeData"]:
+            if tim >= dayOfWeek*(24*12) and tim < (dayOfWeek+1)*(24*12):
+                res.append((tim, userData[idUser]["timeData"][tim]))
+        return res
+    else:
+        return []
+
+
+def getNSubjectOfDay(idUser, dayOfWeek):
+    if idUser in userData:
+        return len(getSubjectOfDay(idUser, dayOfWeek))
+    else:
+        return 0
+
+
+def isExistId(idUser):
+    return getNSubject(idUser) > 0
+
+
+def getDataFromTimeUser(idUser, tim):
+    if idUser in userData:
+        return userData[idUser]["timeData"][tim]
+    else:
+        return ("", "")
 
 
 if __name__ == "__main__":

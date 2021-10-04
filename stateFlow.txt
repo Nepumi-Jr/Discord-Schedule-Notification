@@ -2,6 +2,7 @@ Idle:
     first state
     - Add_SelSub
     - Edi_SelSub
+    - Rem_SelSub
 
 Add_SelSub:
     Select exist subject or Add new one
@@ -79,3 +80,32 @@ Edi_ChaTimeDay:
 Edi_ChaTimeTime:
     TypeNewTime
     - Edi_Sub
+
+
+
+
+Rem_SelSub:
+    Select subject to remove or All subject
+    - Idle
+    - Rem_Sub
+    - Rem_AllSubCon
+
+Rem_AllSubCon:
+    Confirm to Delete all subject?
+    - Rem_SelSub
+    - Idle
+
+Rem_Sub:
+    Delete subject or just time
+    - Rem_SelSub
+    - Rem_SubCon
+    - Rem_SelTimeSub
+
+Rem_SubCon:
+    Confirm to Delete this subject?
+    - Rem_Sub
+    - Rem_SelSub or Idle (if no subject)
+
+Rem_SelTimeSub:
+    Select Time to Delete
+    - Rem_Sub (back or Delete it) or Rem_SelSub (if remove all times)

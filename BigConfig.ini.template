@@ -1,7 +1,6 @@
 [KeyToken]
 botToken = 
 
-
-[Config]
-defaultLang = 
-defaultTimeZone = 
+[bot]
+TimeOfNewDay = 
+GMT =

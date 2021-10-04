@@ -4,10 +4,17 @@ from discord.colour import Color
 from discord.embeds import Embed
 
 from src.backend import handle as sData
+from src import discordData as dData
 
 
 def getMenuComponents(thisChannelID):
     editDelDisable = not sData.isExistId(thisChannelID)
+    if dData.getVacation(thisChannelID) == 0:
+        vacationText = "วุ้ฮู้วววว วันนี้ไม่มีเรียน"
+        vacationEmoji = "🎉"
+    else:
+        vacationText = "แงงง เปลี่ยนเป็นมีเรียนเหมือนเดิม :(("
+        vacationEmoji = "📚"
     return [
         ActionRow(
             Button(
@@ -28,19 +35,17 @@ def getMenuComponents(thisChannelID):
                 emoji="❌",
                 disabled=editDelDisable),
             Button(
-                label="วุ้ฮู้วววว วันนี้ไม่มีเรียน",
+                label=vacationText,
                 custom_id="toggleNoToday",
                 style=ButtonStyle.gray,
-                emoji="🎉",
-                disabled=True),
+                emoji=vacationEmoji),
         ),
         ActionRow(
             Button(
-                label="ตั้งค่าการใช้งาน",
-                custom_id="settingButton",
+                label="เปลี่ยนรูปแบบการแจ้งเตือน",
+                custom_id="togNoti",
                 style=ButtonStyle.gray,
-                emoji="🔧",
-                disabled=True),
+                emoji="💬"),
             Button(
                 label="รีโหลด",
                 custom_id="reloadButton",
@@ -112,15 +117,16 @@ def backToMenu(pKey):
         emoji="↩")
 
 
-def makeSelectSubject(thisChannelID, customId, makeNewSubject):
+def makeSelectSubject(thisChannelID, customId, dlcs=[]):
     subOption = []
     subjects = sData.getallSubjects(thisChannelID)
     for s in subjects:
         subOption.append(SelectOption(label=s, value=s))
-    if makeNewSubject:
-        subOption.append(SelectOption(label="+ เพิ่มวิชาใหม่",
-                                      value="!!TheNewOneeeeeeeeeeeeeee!!",
-                                      emoji="➕"))
+    for d in dlcs:
+        subOption.append(SelectOption(label=d[0],
+                                      value=d[1],
+                                      emoji=d[2]))
+
     return Select(
         placeholder="กรุณาเลือกวิชา",
         options=subOption,
