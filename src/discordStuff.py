@@ -144,8 +144,8 @@ async def on_message(mes: discord.message.Message):
 
     elif curState == "Add_Link":
         curLink = mes.content.strip()
-        if len(curLink) > 100:
-            curLink = curLink[:100]
+        if len(curLink) > 1000:
+            curLink = curLink[:1000]
         if curLink[0] == "<" and curLink[-1] == ">":
             curLink = curLink[1:-1]
         if curLink:
@@ -172,8 +172,8 @@ async def on_message(mes: discord.message.Message):
 
     elif curState == "Edi_ChaLink":
         curLink = mes.content.strip()
-        if len(curLink) > 100:
-            curLink = curLink[:100]
+        if len(curLink) > 1000:
+            curLink = curLink[:1000]
         if curLink[0] == "<" and curLink[-1] == ">":
             curLink = curLink[1:-1]
         if curLink:
