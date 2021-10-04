@@ -37,8 +37,7 @@ def saveServerData():
 
 
 def validData():
-    if not thisData:
-        return
+
     for e in thisData:
         for f in DEFAULT_DATA:
             if f not in thisData[e]:
