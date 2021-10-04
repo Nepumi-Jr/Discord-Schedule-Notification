@@ -65,7 +65,6 @@ async def loopTask(bot):
         hashedTime = hashTime.hash(epochTimeNow)
         hashedTimeFake = hashedTime + 6
         if hashedTimeFake != dData.getTimeOfWeek():
-            print("Push new!!!")
             dData.setTimeOfWeek(hashedTimeFake)
             datas = sData.getTimeSubject(hashedTimeFake)
             if datas:
@@ -74,15 +73,11 @@ async def loopTask(bot):
 
         # ? Reload of Subject
         while not dData.isSReloadEmpty():
-            print(dData.serverData["timeReload"],
-                  len(dData.serverData["timeReload"]))
             isNormalAc = False
             await bot.change_presence(activity=Activity(
                 name="กำลังรีโหลดวิชาอัตโนมัติ...", type=ActivityType.playing),
                 status=Status.dnd)
             cId = dData.popSReload()
-            print(dData.serverData["timeReload"],
-                  len(dData.serverData["timeReload"]))
             dData.setDynaTime(cId, hashedTimeFake)
             if dData.getState(cId) == "idle":
                 await dFlow.callFlow("justReload", bot, cId)
