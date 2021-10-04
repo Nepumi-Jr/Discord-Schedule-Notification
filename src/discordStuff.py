@@ -35,7 +35,7 @@ thisToken = thisConfig["KeyToken"]["botToken"].strip()
 
 
 async def loopTask(bot):
-    isNormalAc = True
+    isNormalAc = False
     newDayTime = (int(thisConfig["bot"]["TimeOfNewDay"].strip()), 0)
     #newDayTime = (22, 12)
     while True:
