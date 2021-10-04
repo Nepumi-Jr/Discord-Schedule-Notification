@@ -87,6 +87,7 @@ async def messageOfContent(chan):
                 Button(
                     label="ลิ้งเรียน",
                     style=ButtonStyle.URL,
+                    url=datas[1],
                     emoji="🔗"
                 )
             ])
