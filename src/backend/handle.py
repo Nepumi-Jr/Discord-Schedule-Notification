@@ -263,9 +263,12 @@ def isExistId(idUser):
 
 def getDataFromTimeUser(idUser, tim):
     if idUser in userData:
-        return userData[idUser]["timeData"][tim]
+        if tim in userData[idUser]["timeData"]:
+            return userData[idUser]["timeData"][tim]
+        else:
+            return -1
     else:
-        return ("", "")
+        return -1
 
 
 if __name__ == "__main__":

@@ -87,6 +87,8 @@ async def messageOfContent(chan):
         timeHased = dyna[1]
         dayOfTheWeek = dData.getDayOfWeek()
         datas = sData.getDataFromTimeUser(thisChanId, timeHased)
+        if datas == -1:
+            return None
         thisMenuEmbed = Embed(
             title=f"{datas[0]}",
             description=f"{dUse.fromTerzTimeToStr(hashTime.hashBack(timeHased))}",
