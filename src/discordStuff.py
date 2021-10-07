@@ -87,7 +87,7 @@ async def loopTask(bot):
 
         if not isNormalAc:
             await bot.change_presence(activity=Activity(
-                name="เริ่มต้นการใช้งาน โดยการพิมพ์ !+schedule ในช่องแชทที่ต้องการ (แชทส่วนตัวก็ได้)", type=ActivityType.playing),
+                name="[!+schedule] เริ่มต้นการใช้งาน โดยการพิมพ์ !+schedule ในช่องแชทที่ต้องการ (แชทส่วนตัวก็ได้)", type=ActivityType.playing),
                 status=Status.online)
             isNormalAc = True
         await asyncio.sleep(2)
@@ -117,6 +117,10 @@ async def on_message(mes: discord.message.Message):
 
     thisChannelID = mes.channel.id
     curState = dData.getState(thisChannelID)
+
+    for ment in mes.mentions:
+        if bot.user.name == ment.display_name:
+            await mes.channel.send("เริ่มต้นการใช้งาน โดยการพิมพ์ `!+schedule` ในช่องแชทที่ต้องการเลยยยย (แชทส่วนตัวก็ได้)")
 
     # !+schedule
     if mes.content.strip().lower().startswith("!+schedule"):
