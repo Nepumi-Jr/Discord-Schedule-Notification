@@ -62,7 +62,10 @@ async def loopTask(bot):
                 dData.setDynaDay(cId, (timeNow.tm_wday+1) % 7)
 
             if dData.getState(cId) == "idle":
-                await dFlow.callFlow("justReload", bot, cId)
+                try:
+                    await dFlow.callFlow("justReload", bot, cId)
+                except Exception as e:
+                    printError("Re-day", f"Error in channel {cId}...\n{e}")
 
         hashedTime = hashTime.hash(epochTimeNow)
         hashedTimeFake = hashedTime + 6
@@ -83,7 +86,11 @@ async def loopTask(bot):
             if dData.getVacation(cId) == 0:
                 dData.setDynaTime(cId, hashedTimeFake)
             if dData.getState(cId) == "idle":
-                await dFlow.callFlow("justReload", bot, cId)
+                try:
+                    await dFlow.callFlow("justReload", bot, cId)
+                except Exception as e:
+                    printError("Re-Schedule",
+                               f"Error in channel {cId}...\n{e}")
 
         if not isNormalAc:
             await bot.change_presence(activity=Activity(
