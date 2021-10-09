@@ -58,6 +58,7 @@ async def loopTask(bot):
                 status=Status.dnd)
             cId = dData.popCReload()
             dData.reduceVacation(cId)
+            dData.setDynaTime(cId, -1)
             if dData.getVacation(cId) == 0:
                 dData.setDynaDay(cId, (timeNow.tm_wday+1) % 7)
 

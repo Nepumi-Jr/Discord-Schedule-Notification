@@ -10,7 +10,7 @@ from src.backend import hashTime
 from src import cmdUtil as util
 from src import discordComUse as dUse
 
-VERSION = "เวอร์ชั่น Beta 1.0.2 (แก้ไข 4 ต.ค. 64)"
+VERSION = "เวอร์ชั่น Beta 1.0.3 (แก้ไข 9 ต.ค. 64)"
 
 dayInThai = ["อาทิตย์", "จันทร์", "อังคาร",
              "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"]
@@ -73,12 +73,14 @@ async def messageOfContent(chan):
 
     if dyna[0] == "Day":
         dayOfTheWeek = dyna[1]
+        datas = sData.getSubjectOfDay(thisChanId, dayOfTheWeek)
+        if len(datas) == 0:
+            return None
         thisMenuEmbed = Embed(
             title=f"วัน{dayInThai[dayOfTheWeek]}",
-            description=f"มีทั้งหมด {sData.getNSubjectOfDay(thisChanId,dayOfTheWeek)} วิชาในวันนี้",
+            description=f"มีทั้งหมด {len(datas)} วิชาในวันนี้",
             colour=dayColor[dayOfTheWeek])
 
-        datas = sData.getSubjectOfDay(thisChanId, dayOfTheWeek)
         for d in datas:
             thisMenuEmbed.add_field(
                 name=f"[{dUse.fromTerzTimeToStr(hashTime.hashBack(d[0]))}] {d[1][0]}", value=str(d[1][1]), inline=False)
