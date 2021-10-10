@@ -10,7 +10,7 @@ from src.backend import hashTime
 from src import cmdUtil as util
 from src import discordComUse as dUse
 
-VERSION = "เวอร์ชั่น Beta 1.0.3 (แก้ไข 9 ต.ค. 64)"
+VERSION = "เวอร์ชั่น Beta 1.0.4 (แก้ไข 10 ต.ค. 64)"
 
 dayInThai = ["อาทิตย์", "จันทร์", "อังคาร",
              "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"]
@@ -159,6 +159,7 @@ async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
                 dData.setNotiMessID(thisChannelID, thisMes.id)
             thisMes = await menuCmdCommand(thisChannel)
             dData.createNewID(thisChannelID, thisMes.id)
+
     elif idFlow == "deleteChan":
         if dData.isExistID(thisChannelID):
             dData.setState(thisChannelID, "delChan_Con")
@@ -330,11 +331,12 @@ async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
     elif idFlow == "Add_NewDay":
         await delAllPrevMess(bot, thisChannelID)
         dData.setState(thisChannelID, "Add_NewDay")
+        SubjectTitle = dData.getTempInd(thisChannelID, 0)
         pKey = dData.makeNewKey(thisChannelID) + ":"
         dayInThai = ["อาทิตย์", "จันทร์", "อังคาร",
                      "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"]
         m = await thisChannel.send(
-            f":calendar_spiral:**กรุณาเลือกวันที่เรียน**:calendar_spiral:",
+            f":calendar_spiral:**กรุณาเลือกวันที่เรียนวิชา `{SubjectTitle}`**:calendar_spiral:",
             components=[ActionRow(
                 dUse.anyButton(pKey+"add_NewDay_0", "วัน"+dayInThai[0], "🕒"),
                 dUse.anyButton(pKey+"add_NewDay_1", "วัน"+dayInThai[1], "🕒"),
@@ -460,8 +462,9 @@ async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
                      "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"]
         fromDay = hashTime.hashBack(
             dData.getTempInd(thisChannelID, 2))[0]
+        SubjectTitle = dData.getTempInd(thisChannelID, 0)
         m = await thisChannel.send(
-            f":calendar_spiral:**กรุณาเลือกวันที่จะเปลี่ยนจาก`{fromDay}`**:calendar_spiral:",
+            f":calendar_spiral:**วิชา `{SubjectTitle}`**:calendar_spiral:\nกรุณาเลือกวันที่จะเปลี่ยนจาก`{fromDay}`",
             components=[ActionRow(
                 dUse.anyButton(pKey+"edi_chaTimeDay_0",
                                "วัน"+dayInThai[0], "🕒"),

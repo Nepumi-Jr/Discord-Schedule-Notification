@@ -66,7 +66,15 @@ async def loopTask(bot):
                 try:
                     await dFlow.callFlow("justReload", bot, cId)
                 except Exception as e:
-                    printError("Re-day", f"Error in channel {cId}...\n{e}")
+                    ccrt = dData.addMissing(cId)
+                    printError(
+                        "Re-day", f"Error in channel {cId} ({ccrt}/5)...\n{e}")
+                    if ccrt == 5:
+                        printWarning("Re-day", f"Removing {cId}")
+                        dData.removeID(cId)
+                        sData.delAllTime(cId)
+                else:
+                    dData.resetMissing(cId)
 
         hashedTime = hashTime.hash(epochTimeNow)
         hashedTimeFake = (hashedTime + 6) % 2016
@@ -90,8 +98,15 @@ async def loopTask(bot):
                 try:
                     await dFlow.callFlow("justReload", bot, cId)
                 except Exception as e:
-                    printError("Re-Schedule",
-                               f"Error in channel {cId}...\n{e}")
+                    ccrt = dData.addMissing(cId)
+                    printError(
+                        "Re-Schedule", f"Error in channel {cId} ({ccrt}/5)...\n{e}")
+                    if ccrt == 5:
+                        printWarning("Re-Schedule", f"Removing {cId}")
+                        dData.removeID(cId)
+                        sData.delAllTime(cId)
+                else:
+                    dData.resetMissing(cId)
 
         if not isNormalAc:
             await bot.change_presence(activity=Activity(
@@ -171,7 +186,7 @@ async def on_message(mes: discord.message.Message):
         res = timeDetection(curTime)
         if len(res) != 2:
             await mes.channel.send(
-                f"กรุณาใส่เวลาที่ถูกต้อง เช่น `{random.randint(0,23)}:{random.randint(0,59)}`")
+                f"กรุณาใส่เวลาที่ถูกต้อง เช่น `{random.randint(0,23):02}:{random.randint(0,11)*5:02}`")
         else:
             await dFlow.callFlow("Add_NewTimeCon", bot, thisChannelID, list(res))
 
@@ -202,12 +217,12 @@ async def on_message(mes: discord.message.Message):
         res = timeDetection(curTime)
         if len(res) != 2:
             await mes.channel.send(
-                f"กรุณาใส่เวลาที่ถูกต้อง เช่น `{random.randint(0,23)}:{random.randint(0,59)}`")
+                f"กรุณาใส่เวลาที่ถูกต้อง เช่น `{random.randint(0,23):02}:{random.randint(0,11)*5:02}`")
         else:
             fromTimeHased = dData.getTempInd(thisChannelID, 2)
             fromTime = hashTime.hashBack(fromTimeHased)
             newTimeHashed = dData.getTempInd(
-                thisChannelID, 3)*24*12 + res[0] * 12 + res[1]
+                thisChannelID, 3)*24*12 + res[0] * 12 + res[1] // 5
             newTime = hashTime.hashBack(newTimeHashed)
             sData.changeTime(thisChannelID, fromTimeHased, newTimeHashed)
             await mes.channel.send(
@@ -337,6 +352,8 @@ async def on_button_click(inter: interaction.Interaction):
             await inter.respond(type=6)
         except:
             pass
+    else:
+        await curChan.send(":interrobang:ไม่พบข้อมูลในระบบ\nกรุณาพิมพ์ `!+schedule` ใหม่เพิ่มเริ่มต้นการใช้งาน\nขออภัยในความไม่สะดวก")
 
 
 @ bot.event
@@ -398,6 +415,9 @@ async def on_select_option(inter: interaction.Interaction):
             await inter.respond(type=6)
         except:
             pass
+    else:
+        curChan = bot.get_channel(thisChannelID)
+        await curChan.send(":interrobang:ไม่พบข้อมูลในระบบ\nกรุณาพิมพ์ `!+schedule` ใหม่เพิ่มเริ่มต้นการใช้งาน\nขออภัยในความไม่สะดวก")
 
 
 def runBot():

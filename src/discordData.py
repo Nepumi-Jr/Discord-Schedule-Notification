@@ -13,7 +13,8 @@ DEFAULT_DATA = {
     "prevMessage": [],
     "vacationDays": 0,
     "dynamicDay": -1,
-    "dynamicTime": -1
+    "dynamicTime": -1,
+    "missingCrt": 0,
 }
 
 DEFAULT_SERVER_DATA = {
@@ -145,7 +146,7 @@ def setTempInd(thisId: int, ind: int, data):
         saveData()
 
 
-def getStateKey(thisId: int) -> str:
+def getStateKey(thisId: int):
     if isExistID(thisId):
         return thisData[thisId]["stateKey"]
     return 0
@@ -317,3 +318,16 @@ def reduceVacation(thisId):
         if thisData[thisId]["vacationDays"] > 0:
             thisData[thisId]["vacationDays"] -= 1
             saveData()
+
+
+def addMissing(thisId):
+    if isExistID(thisId):
+        thisData[thisId]["missingCrt"] += 1
+        saveData()
+        return thisData[thisId]["missingCrt"]
+
+
+def resetMissing(thisId):
+    if isExistID(thisId):
+        thisData[thisId]["missingCrt"] = 0
+        saveData()
