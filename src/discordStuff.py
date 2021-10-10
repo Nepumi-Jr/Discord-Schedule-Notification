@@ -69,7 +69,7 @@ async def loopTask(bot):
                     printError("Re-day", f"Error in channel {cId}...\n{e}")
 
         hashedTime = hashTime.hash(epochTimeNow)
-        hashedTimeFake = hashedTime + 6
+        hashedTimeFake = (hashedTime + 6) % 2016
         if hashedTimeFake != dData.getTimeOfWeek():
             dData.setTimeOfWeek(hashedTimeFake)
             datas = sData.getTimeSubject(hashedTimeFake)
