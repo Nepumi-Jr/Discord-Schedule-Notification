@@ -95,12 +95,12 @@ async def messageOfContent(chan):
             title=f"{datas[0]}",
             description=f"{dUse.fromTerzTimeToStr(hashTime.hashBack(timeHased))}",
             colour=dayColor[dayOfTheWeek])
-        thisMenuEmbed.add_field(name="ลิ้ง", value=datas[1])
+        thisMenuEmbed.add_field(name="ลิงก์", value=datas[1])
 
         try:
             x = await chan.send(embed=thisMenuEmbed, components=[
                 Button(
-                    label="ลิ้งเรียน",
+                    label="ลิงก์เรียน",
                     style=ButtonStyle.URL,
                     url=datas[1],
                     emoji="🔗"
@@ -268,7 +268,7 @@ async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
 
         dData.setState(thisChannelID, "Add_Link")
         await thisChannel.send(
-            f":closed_book: **วิชา `{curSubject}`**\n:speech_balloon: กรุณาใส่ลิ้งเรียนเลย\n*ขอแค่ลิ้งก็พอ*")
+            f":closed_book: **วิชา `{curSubject}`**\n:speech_balloon: กรุณาใส่ลิงก์เรียนเลย\n*ขอแค่ลิงก์ก็พอ*")
 
     elif idFlow == "Add_SubCon" or idFlow == "Add_SubConBP":
         await delAllPrevMess(bot, thisChannelID)
@@ -289,7 +289,7 @@ async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
         menus = ActionRow(
             dUse.acceptButton(pKey+"add_sub_OK"),
             dUse.anyButton(pKey+"add_sub_editSub", "แก้ไขชื่อวิชา", "📕"),
-            dUse.anyButton(pKey+"add_sub_editLink", "แก้ไขลิ้ง", "🔗"),
+            dUse.anyButton(pKey+"add_sub_editLink", "แก้ไขลิงก์", "🔗"),
         )
         try:
             m = await thisChannel.send(
@@ -299,7 +299,7 @@ async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
                     description=newTemp[1], colour=Color.random()),
                 components=[ActionRow(
                     Button(
-                        label="ลิ้งเรียน",
+                        label="ลิงก์เรียน",
                         style=ButtonStyle.URL,
                         url=newTemp[1],
                         emoji="🔗")
@@ -411,7 +411,7 @@ async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
             components=[ActionRow(
                 dUse.backToMenu(pKey),
                 dUse.anyButton(pKey+"edit_sub_subj", "แก้ไขชื่อวิชา", "📕"),
-                dUse.anyButton(pKey+"edit_sub_link", "แก้ไขลิ้ง", "🔗"),
+                dUse.anyButton(pKey+"edit_sub_link", "แก้ไขลิงก์", "🔗"),
                 dUse.anyButton(pKey+"edit_sub_Time", "แก้ไขเวลา", "🕞"),
             )])
         dData.addMessageId(thisChannelID, m.id)
@@ -426,7 +426,7 @@ async def callFlow(idFlow, bot, thisChannelID, dlcc=None):
         dData.setState(thisChannelID, "Edi_ChaLink")
         curSubject = dData.getTempInd(thisChannelID, 0)
         await thisChannel.send(
-            f":closed_book: **วิชา `{curSubject}`**\n:speech_balloon: กรุณาใส่ลิ้งเรียนเลย\n*ขอแค่ลิ้งก็พอ*")
+            f":closed_book: **วิชา `{curSubject}`**\n:speech_balloon: กรุณาใส่ลิงก์เรียนเลย\n*ขอแค่ลิงก์ก็พอ*")
 
     elif idFlow == "Edi_ChaTime":
         await delAllPrevMess(bot, thisChannelID)
