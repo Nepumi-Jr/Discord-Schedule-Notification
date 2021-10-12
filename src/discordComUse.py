@@ -26,7 +26,7 @@ def getMenuComponents(thisChannelID):
             Button(
                 label="เพิ่มรายวิชา/เวลา",
                 custom_id="addButton",
-                style=ButtonStyle.green,
+                style=ButtonStyle.gray,
                 emoji="➕"),
             Button(
                 label="แก้ไขรายวิชา/เวลา",
@@ -37,7 +37,7 @@ def getMenuComponents(thisChannelID):
             Button(
                 label="ลบรายวิชา/เวลา",
                 custom_id="delButton",
-                style=ButtonStyle.red,
+                style=ButtonStyle.gray,
                 emoji="❌",
                 disabled=editDelDisable),
             Button(
@@ -55,7 +55,7 @@ def getMenuComponents(thisChannelID):
             Button(
                 label="รีโหลด",
                 custom_id="reloadButton",
-                style=ButtonStyle.blue,
+                style=ButtonStyle.gray,
                 emoji="🔁"),
             # Button(
             #     label="ตรวจสอบเวอร์ชั่น",

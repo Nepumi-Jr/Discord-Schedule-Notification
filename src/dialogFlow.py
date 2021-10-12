@@ -10,7 +10,7 @@ from src.backend import hashTime
 from src import cmdUtil as util
 from src import discordComUse as dUse
 
-VERSION = "เวอร์ชั่น Beta 1.0.4 (แก้ไข 10 ต.ค. 64)"
+VERSION = "เวอร์ชั่น Beta 1.0.5 (แก้ไข 12 ต.ค. 64)"
 
 dayInThai = ["อาทิตย์", "จันทร์", "อังคาร",
              "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"]
@@ -133,7 +133,8 @@ async def menuCmdCommand(chan):
             thisChanId) == 0 and "เรียนตามปกติ" or f"วู้ว หยุดอีก {dData.getVacation(thisChanId)} วัน")
         thisMenuEmbed.set_footer(text=VERSION)
 
-        return await chan.send(":clock1:**ยินดีต้อนรับสู่การใช้งาน บอทขอลิงก์(ห้อง)เรียน**:clock1:\n \\* สามารถใช้ปุ่มด้านล่างนี้ในการควบคุมต่าง ๆ\n*แนะนำ : ไม่ควรใช้ห้องแชทนี้ในการสนทนาปกติ*",
+        return await chan.send(":clock1:**ยินดีต้อนรับสู่การใช้งาน บอทขอลิงก์(ห้อง)เรียน**:clock1:\n \\* สามารถใช้ปุ่มด้านล่างนี้ในการควบคุมต่าง ๆ\n*แนะนำ : ไม่ควรใช้ห้องแชทนี้ในการสนทนาปกติ*" +
+                               "\n\n:information_source: รบกวนผู้ใช้งานทุกท่านทำแบบสอบถามความพึงพอใจพอใจในการใช้ดิสคอร์ดบอทขอลิงก์(ห้อง)เรียน\n เพื่อนำไปเป็นส่วนหนึ่งของการวิจัยในรายวิชา `GE362785 การคิดเชิงสร้างสรรค์และการแก้ปัญหา`\nและเป็นผลตอบรับและข้อคิดเห็นเพื่อให้ผู้พัฒนาได้พัฒนาต่อไป\n*ขอบคุณครับ :heart:*\n<https://kku.world/4i1vs>",
                                embed=thisMenuEmbed,
                                components=dUse.getMenuComponents(thisChanId))
 
