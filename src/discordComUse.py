@@ -76,9 +76,9 @@ def getMenuComponents(thisChannelID):
                 style=ButtonStyle.red,
                 emoji="💥"),
             Button(
-                label="น่ า ส น ใ จ",
+                label="วิธีการใช้งาน",
                 style=ButtonStyle.URL,
-                url="https://www.youtube.com/watch?v=iik25wqIuFo",
+                url="https://www.youtube.com/watch?v=sLX1iBpdaqo",
                 emoji="❔"),
         )
 
