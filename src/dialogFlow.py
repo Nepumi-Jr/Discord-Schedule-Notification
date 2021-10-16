@@ -10,7 +10,7 @@ from src.backend import hashTime
 from src import cmdUtil as util
 from src import discordComUse as dUse
 
-VERSION = "เวอร์ชั่น Beta 1.0.5 (แก้ไข 12 ต.ค. 64)"
+VERSION = "เวอร์ชั่น Beta 1.0.6 (แก้ไข 16 ต.ค. 64)"
 
 dayInThai = ["อาทิตย์", "จันทร์", "อังคาร",
              "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"]
