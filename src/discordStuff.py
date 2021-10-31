@@ -110,7 +110,7 @@ async def loopTask(bot):
 
         if not isNormalAc:
             await bot.change_presence(activity=Activity(
-                name="[!+schedule] เริ่มต้นการใช้งาน โดยการพิมพ์ !+schedule ในช่องแชทที่ต้องการ (แชทส่วนตัวก็ได้)", type=ActivityType.playing),
+                name="[!+schedule] บอทขอลิ้งหน่อยยยย จะขอยุติการให้บริการ ในวันที่่ 15 พย. 2564 ขอขอบคุณทุก ๆ ท่านที่ร่วมเป็นส่วนหนึ่งของการใช้งานบอทนี้ ขอบคุณงับ", type=ActivityType.playing),
                 status=Status.online)
             isNormalAc = True
         await asyncio.sleep(2)

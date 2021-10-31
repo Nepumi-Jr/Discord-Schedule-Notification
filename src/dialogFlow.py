@@ -10,7 +10,7 @@ from src.backend import hashTime
 from src import cmdUtil as util
 from src import discordComUse as dUse
 
-VERSION = "เวอร์ชั่น Beta 1.0.7 (แก้ไข 18 ต.ค. 64)"
+VERSION = "เวอร์ชั่น Beta 1.0.8 (แก้ไข 31 ต.ค. 64)"
 
 dayInThai = ["อาทิตย์", "จันทร์", "อังคาร",
              "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"]
@@ -115,7 +115,8 @@ async def menuCmdCommand(chan):
     thisChanId = chan.id
     dayOfWeek = dData.getDayOfWeek()
     if dayOfWeek == -1:
-        return await chan.send(":clock1:**ยินดีต้อนรับสู่การใช้งาน บอทขอลิงก์(ห้อง)เรียน**:clock1:\n \\* สามารถใช้ปุ่มด้านล่างนี้ในการควบคุมต่าง ๆ\n*แนะนำ : ไม่ควรใช้ห้องแชทนี้ในการสนทนาปกติ*",
+        return await chan.send(":clock1:**ยินดีต้อนรับสู่การใช้งาน บอทขอลิงก์(ห้อง)เรียน**:clock1:\n \\* สามารถใช้ปุ่มด้านล่างนี้ในการควบคุมต่าง ๆ\n*แนะนำ : ไม่ควรใช้ห้องแชทนี้ในการสนทนาปกติ*" +
+                               "\n\n:information_source: ทางดิสคอร์ดบอท ขอลิ้งหน่อยยยย **จะขอยุติการให้บริการ** ในวันที่่ `15 พย. 2564`\nขอขอบคุณทุก ๆ ท่านที่ร่วมเป็นส่วนหนึ่งของการใช้งานบอทนี้\n:pray:ขอบคุณงับ",
                                components=dUse.getMenuComponents(thisChanId))
     else:
         date = dData.getDMY()
@@ -133,7 +134,8 @@ async def menuCmdCommand(chan):
             thisChanId) == 0 and "เรียนตามปกติ" or f"วู้ว หยุดอีก {dData.getVacation(thisChanId)} วัน")
         thisMenuEmbed.set_footer(text=VERSION)
 
-        return await chan.send(":clock1:**ยินดีต้อนรับสู่การใช้งาน บอทขอลิงก์(ห้อง)เรียน**:clock1:\n \\* สามารถใช้ปุ่มด้านล่างนี้ในการควบคุมต่าง ๆ\n*แนะนำ : ไม่ควรใช้ห้องแชทนี้ในการสนทนาปกติ*",
+        return await chan.send(":clock1:**ยินดีต้อนรับสู่การใช้งาน บอทขอลิงก์(ห้อง)เรียน**:clock1:\n \\* สามารถใช้ปุ่มด้านล่างนี้ในการควบคุมต่าง ๆ\n*แนะนำ : ไม่ควรใช้ห้องแชทนี้ในการสนทนาปกติ*" +
+                               "\n\n:information_source: ทางดิสคอร์ดบอท ขอลิ้งหน่อยยยย **จะขอยุติการให้บริการ** ในวันที่่ `15 พย. 2564`\nขอขอบคุณทุก ๆ ท่านที่ร่วมเป็นส่วนหนึ่งของการใช้งานบอทนี้\n:pray:ขอบคุณงับ",
                                embed=thisMenuEmbed,
                                components=dUse.getMenuComponents(thisChanId))
 
