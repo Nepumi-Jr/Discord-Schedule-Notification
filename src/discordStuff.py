@@ -94,19 +94,19 @@ async def loopTask(bot):
             cId = dData.popSReload()
             if dData.getVacation(cId) == 0:
                 dData.setDynaTime(cId, hashedTimeFake)
-            if dData.getState(cId) == "idle":
-                try:
-                    await dFlow.callFlow("justReload", bot, cId)
-                except Exception as e:
-                    ccrt = dData.addMissing(cId)
-                    printError(
-                        "Re-Schedule", f"Error in channel {cId} ({ccrt}/5)...\n{e}")
-                    if ccrt == 5:
-                        printWarning("Re-Schedule", f"Removing {cId}")
-                        dData.removeID(cId)
-                        sData.delAllTime(cId)
-                else:
-                    dData.resetMissing(cId)
+                if dData.getState(cId) == "idle":
+                    try:
+                        await dFlow.callFlow("justReload", bot, cId)
+                    except Exception as e:
+                        ccrt = dData.addMissing(cId)
+                        printError(
+                            "Re-Schedule", f"Error in channel {cId} ({ccrt}/5)...\n{e}")
+                        if ccrt == 5:
+                            printWarning("Re-Schedule", f"Removing {cId}")
+                            dData.removeID(cId)
+                            sData.delAllTime(cId)
+                    else:
+                        dData.resetMissing(cId)
 
         if not isNormalAc:
             await bot.change_presence(activity=Activity(
