@@ -8,8 +8,9 @@ CHANNEL_SECRET
 env/
 NGROK_TOKEN
 useChannel.txt
-disData.yml
-sTimeTable.yml
-sUserData.yml
 test.py
-serData.yml
+
+data/sUserData.yml
+data/serverData.yml
+data/sTimeTable.yml
+data/disData.yml

@@ -28,13 +28,13 @@ DEFAULT_SERVER_DATA = {
 
 def saveData():
     global thisData, serverData
-    with open("disData.yml", "w") as f:
+    with open("data\disData.yml", "w") as f:
         yaml.dump(thisData, f)
 
 
 def saveServerData():
     global thisData, serverData
-    with open("serData.yml", "w") as f:
+    with open("data\serverData.yml", "w") as f:
         yaml.dump(serverData, f)
 
 
@@ -55,12 +55,12 @@ def validData():
 
 def loadData():
     global thisData, serverData
-    cmdUtil.fileExist("disData.yml")
-    cmdUtil.fileExist("serData.yml")
-    with open("disData.yml", "r") as f:
+    cmdUtil.fileExist("data\disData.yml")
+    cmdUtil.fileExist("data\serverData.yml")
+    with open("data\disData.yml", "r") as f:
         thisData = yaml.load(f, Loader=yaml.FullLoader)
 
-    with open("serData.yml", "r") as f:
+    with open("data\serverData.yml", "r") as f:
         serverData = yaml.load(f, Loader=yaml.FullLoader)
 
     if thisData == None:
