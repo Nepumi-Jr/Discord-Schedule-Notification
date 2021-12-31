@@ -10,21 +10,21 @@ timeTable = [dict() for i in range(2020)]
 
 def saveData():
     global userData, timeTable
-    with open("data\sTimeTable.yml", "w") as f:
+    with open("data/sTimeTable.yml", "w") as f:
         yaml.dump(userData, f)
 
-    with open("data\sTimeTable.yml", "w") as f:
+    with open("data/sTimeTable.yml", "w") as f:
         yaml.dump(timeTable, f)
 
 
 def loadData():
     global userData, timeTable
-    cmdUtil.fileExist("data\sTimeTable.yml")
-    cmdUtil.fileExist("data\sTimeTable.yml")
-    with open("data\sTimeTable.yml", "r") as f:
+    cmdUtil.fileExist("data/sTimeTable.yml")
+    cmdUtil.fileExist("data/sTimeTable.yml")
+    with open("data/sTimeTable.yml", "r") as f:
         userData = yaml.load(f, Loader=yaml.FullLoader)
 
-    with open("data\sTimeTable.yml", "r") as f:
+    with open("data/sTimeTable.yml", "r") as f:
         timeTable = yaml.load(f, Loader=yaml.FullLoader)
 
     if userData == None:
