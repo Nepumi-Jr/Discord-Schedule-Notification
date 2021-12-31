@@ -17,7 +17,7 @@ from src.backend import hashTime
 from src import cmdUtil as util
 from src import discordComUse as dUse
 
-VERSION = "เวอร์ชั่น Beta 1.0.8 (แก้ไข 31 ต.ค. 64)"
+VERSION = "เวอร์ชั่น Beta 1.69 (แก้ไข 31 ธ.ค. 64)"
 
 dayInThai = ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"]
 dayColor = [
@@ -150,7 +150,7 @@ async def menuCmdCommand(chan):
     dayOfWeek = dData.getDayOfWeek()
     if dayOfWeek == -1:
         return await chan.send(
-            ":clock1:**ยินดีต้อนรับสู่การใช้งาน บอทขอลิงก์(ห้อง)เรียน**:clock1:\n \\* สามารถใช้ปุ่มด้านล่างนี้ในการควบคุมต่าง ๆ\n*แนะนำ : ไม่ควรใช้ห้องแชทนี้ในการสนทนาปกติ*"
+            ":clock1:**ยินดีต้อนรับสู่การใช้งาน บอทขอลิงก์(ห้อง)เรียน**:clock1:\n \\* สามารถใช้ปุ่มด้านล่างนี้ในการควบคุมต่าง ๆ\n*แนะนำ : ไม่ควรใช้ห้องแชทนี้ในการสนทนาปกติ*\n"
             + f"บัก{choice(['ต่อ','ฟอร์ด','ลีโอ','ฟีลลลลล','จอร์จ','ปาล์ม','ภาคย์'])}{choice(['บักหน้าหี','บักควย','บักรูปหล่อ','ถอดกางเกง!!!!!'])}",
             components=dUse.getMenuComponents(thisChanId),
         )
@@ -182,7 +182,7 @@ async def menuCmdCommand(chan):
         thisMenuEmbed.set_footer(text=VERSION)
 
         return await chan.send(
-            ":clock1:**ยินดีต้อนรับสู่การใช้งาน บอทขอลิงก์(ห้อง)เรียน**:clock1:\n \\* สามารถใช้ปุ่มด้านล่างนี้ในการควบคุมต่าง ๆ\n*แนะนำ : ไม่ควรใช้ห้องแชทนี้ในการสนทนาปกติ*"
+            ":clock1:**ยินดีต้อนรับสู่การใช้งาน บอทขอลิงก์(ห้อง)เรียน**:clock1:\n \\* สามารถใช้ปุ่มด้านล่างนี้ในการควบคุมต่าง ๆ\n*แนะนำ : ไม่ควรใช้ห้องแชทนี้ในการสนทนาปกติ*\n"
             + f"บัก{choice(['ต่อ','ฟอร์ด','ลีโอ','ฟีลลลลล','จอร์จ','ปาล์ม','ภาคย์'])}{choice(['บักหน้าหี','บักควย','บักรูปหล่อ','ถอดกางเกง!!!!!'])}",
             embed=thisMenuEmbed,
             components=dUse.getMenuComponents(thisChanId),
