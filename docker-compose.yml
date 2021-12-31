@@ -1,0 +1,13 @@
+version: '3.9'
+services:
+  schedule:
+    build: .
+    container_name: nepumi-schedule
+    networks:
+      - nepumi-network
+    volumes:
+      - ./data:/usr/src/app/data
+
+networks:
+  nepumi-network:
+    name: nepumi-network
